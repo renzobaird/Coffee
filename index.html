@@ -1,0 +1,453 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Brew Logic — Refined Insights, Brewed to Order</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+</head>
+<body>
+
+    <!-- ===== SINGLE-PAGE LAYOUT ===== -->
+    <div class="app-layout">
+
+        <!-- LEFT COLUMN: Logo + Swappable Content Panels -->
+        <div class="left-column">
+
+            <!-- Logo (always visible, top-left) -->
+            <div class="logo-area">
+                <div class="logo">
+                    <svg class="logo-icon" viewBox="0 0 40 40" fill="none">
+                        <circle cx="20" cy="20" r="18" stroke="#c8a97e" stroke-width="2"/>
+                        <path d="M14 26c0-6 3-10 6-12s6-2 6 2-3 6-6 8-6 4-6 2z" fill="#c8a97e" opacity="0.7"/>
+                        <path d="M12 28h16" stroke="#c8a97e" stroke-width="2" stroke-linecap="round"/>
+                    </svg>
+                    <div class="logo-text">
+                        <span class="logo-title">BREW LOGIC</span>
+                        <span class="logo-subtitle">Refined Insights, Brewed to Order</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Content panels — only one visible at a time -->
+            <div class="content-panels">
+
+                <!-- HOME -->
+                <div id="panel-home" class="content-panel active">
+                    <h1 class="home-headline">
+                        <span class="headline-accent">Data-Driven</span>
+                        <span class="headline-main">Coffee Intelligence</span>
+                    </h1>
+                    <p class="home-tagline">Explore analytics across five signature drinks — from consumer demographics to peak popularity hours. Select a drink on the machine to begin.</p>
+                    <div class="home-drink-cards">
+                        <div class="drink-card" data-drink="latte">
+                            <div class="drink-card-icon"><svg viewBox="0 0 32 32" fill="none"><path d="M8 10h16v14a4 4 0 01-4 4h-8a4 4 0 01-4-4V10z" stroke="#c8a97e" stroke-width="1.5"/><path d="M24 14h2a3 3 0 010 6h-2" stroke="#c8a97e" stroke-width="1.5"/><path d="M12 6c0-1 1-2 2-2m2 2c0-1 1-2 2-2" stroke="#c8a97e" stroke-width="1" opacity="0.5"/></svg></div>
+                            <span>Latte</span>
+                        </div>
+                        <div class="drink-card" data-drink="cappuccino">
+                            <div class="drink-card-icon"><svg viewBox="0 0 32 32" fill="none"><path d="M8 10h16v14a4 4 0 01-4 4h-8a4 4 0 01-4-4V10z" stroke="#c8a97e" stroke-width="1.5"/><path d="M24 14h2a3 3 0 010 6h-2" stroke="#c8a97e" stroke-width="1.5"/><path d="M10 14h12" stroke="#c8a97e" stroke-width="1" opacity="0.4"/></svg></div>
+                            <span>Cappuccino</span>
+                        </div>
+                        <div class="drink-card" data-drink="americano">
+                            <div class="drink-card-icon"><svg viewBox="0 0 32 32" fill="none"><path d="M8 10h16v14a4 4 0 01-4 4h-8a4 4 0 01-4-4V10z" stroke="#c8a97e" stroke-width="1.5"/><path d="M24 14h2a3 3 0 010 6h-2" stroke="#c8a97e" stroke-width="1.5"/></svg></div>
+                            <span>Americano</span>
+                        </div>
+                        <div class="drink-card" data-drink="cortado">
+                            <div class="drink-card-icon"><svg viewBox="0 0 32 32" fill="none"><path d="M10 12h12v10a3 3 0 01-3 3h-6a3 3 0 01-3-3V12z" stroke="#c8a97e" stroke-width="1.5"/><path d="M22 15h1.5a2.5 2.5 0 010 5H22" stroke="#c8a97e" stroke-width="1.5"/></svg></div>
+                            <span>Cortado</span>
+                        </div>
+                        <div class="drink-card" data-drink="espresso">
+                            <div class="drink-card-icon"><svg viewBox="0 0 32 32" fill="none"><path d="M11 14h10v8a3 3 0 01-3 3h-4a3 3 0 01-3-3V14z" stroke="#c8a97e" stroke-width="1.5"/><path d="M21 17h1a2 2 0 010 4h-1" stroke="#c8a97e" stroke-width="1.5"/><path d="M14 10c0-1 .5-2 2-2m2 2c0-1 .5-2 2-2" stroke="#c8a97e" stroke-width="1" opacity="0.5"/></svg></div>
+                            <span>Espresso</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- LATTE -->
+                <div id="panel-latte" class="content-panel drink-panel">
+                    <h2 class="drink-name">Latte</h2>
+                    <div class="drink-stats-grid">
+                        <div class="stat-card stat-age">
+                            <div class="stat-label">AVG. AGE OF BUYER</div>
+                            <div class="stat-value" id="latte-age">--</div>
+                            <div class="stat-bar-container"><div class="stat-bar" id="latte-age-bar"></div></div>
+                            <div class="stat-note">years old</div>
+                        </div>
+                        <div class="stat-card stat-time">
+                            <div class="stat-label">PEAK POPULARITY</div>
+                            <div class="stat-value" id="latte-time">--</div>
+                            <div class="time-chart" id="latte-time-chart">
+                                <div class="time-block" data-period="Morning"><span>AM</span></div>
+                                <div class="time-block" data-period="Afternoon"><span>PM</span></div>
+                                <div class="time-block" data-period="Night"><span>EVE</span></div>
+                            </div>
+                            <div class="stat-note">time of day</div>
+                        </div>
+                        <div class="stat-card stat-fav">
+                            <div class="stat-label">REPORTED AS FAVORITE</div>
+                            <div class="stat-value" id="latte-fav">--</div>
+                            <div class="fav-dots" id="latte-dots"></div>
+                            <div class="stat-note">survey respondents</div>
+                        </div>
+                    </div>
+                    <div class="sales-label-area">
+                        <div class="stat-label">TOTAL SALES SHARE</div>
+                        <div class="sales-percent" id="latte-sales-pct">--%</div>
+                        <div class="stat-note">of all coffee drink sales · Watch the pour →</div>
+                    </div>
+                </div>
+
+                <!-- CAPPUCCINO -->
+                <div id="panel-cappuccino" class="content-panel drink-panel">
+                    <h2 class="drink-name">Cappuccino</h2>
+                    <div class="drink-stats-grid">
+                        <div class="stat-card stat-age">
+                            <div class="stat-label">AVG. AGE OF BUYER</div>
+                            <div class="stat-value" id="cappuccino-age">--</div>
+                            <div class="stat-bar-container"><div class="stat-bar" id="cappuccino-age-bar"></div></div>
+                            <div class="stat-note">years old</div>
+                        </div>
+                        <div class="stat-card stat-time">
+                            <div class="stat-label">PEAK POPULARITY</div>
+                            <div class="stat-value" id="cappuccino-time">--</div>
+                            <div class="time-chart" id="cappuccino-time-chart">
+                                <div class="time-block" data-period="Morning"><span>AM</span></div>
+                                <div class="time-block" data-period="Afternoon"><span>PM</span></div>
+                                <div class="time-block" data-period="Night"><span>EVE</span></div>
+                            </div>
+                            <div class="stat-note">time of day</div>
+                        </div>
+                        <div class="stat-card stat-fav">
+                            <div class="stat-label">REPORTED AS FAVORITE</div>
+                            <div class="stat-value" id="cappuccino-fav">--</div>
+                            <div class="fav-dots" id="cappuccino-dots"></div>
+                            <div class="stat-note">survey respondents</div>
+                        </div>
+                    </div>
+                    <div class="sales-label-area">
+                        <div class="stat-label">TOTAL SALES SHARE</div>
+                        <div class="sales-percent" id="cappuccino-sales-pct">--%</div>
+                        <div class="stat-note">of all coffee drink sales · Watch the pour →</div>
+                    </div>
+                </div>
+
+                <!-- AMERICANO -->
+                <div id="panel-americano" class="content-panel drink-panel">
+                    <h2 class="drink-name">Americano</h2>
+                    <div class="drink-stats-grid">
+                        <div class="stat-card stat-age">
+                            <div class="stat-label">AVG. AGE OF BUYER</div>
+                            <div class="stat-value" id="americano-age">--</div>
+                            <div class="stat-bar-container"><div class="stat-bar" id="americano-age-bar"></div></div>
+                            <div class="stat-note">years old</div>
+                        </div>
+                        <div class="stat-card stat-time">
+                            <div class="stat-label">PEAK POPULARITY</div>
+                            <div class="stat-value" id="americano-time">--</div>
+                            <div class="time-chart" id="americano-time-chart">
+                                <div class="time-block" data-period="Morning"><span>AM</span></div>
+                                <div class="time-block" data-period="Afternoon"><span>PM</span></div>
+                                <div class="time-block" data-period="Night"><span>EVE</span></div>
+                            </div>
+                            <div class="stat-note">time of day</div>
+                        </div>
+                        <div class="stat-card stat-fav">
+                            <div class="stat-label">REPORTED AS FAVORITE</div>
+                            <div class="stat-value" id="americano-fav">--</div>
+                            <div class="fav-dots" id="americano-dots"></div>
+                            <div class="stat-note">survey respondents</div>
+                        </div>
+                    </div>
+                    <div class="sales-label-area">
+                        <div class="stat-label">TOTAL SALES SHARE</div>
+                        <div class="sales-percent" id="americano-sales-pct">--%</div>
+                        <div class="stat-note">of all coffee drink sales · Watch the pour →</div>
+                    </div>
+                </div>
+
+                <!-- CORTADO -->
+                <div id="panel-cortado" class="content-panel drink-panel">
+                    <h2 class="drink-name">Cortado</h2>
+                    <div class="drink-stats-grid">
+                        <div class="stat-card stat-age">
+                            <div class="stat-label">AVG. AGE OF BUYER</div>
+                            <div class="stat-value" id="cortado-age">--</div>
+                            <div class="stat-bar-container"><div class="stat-bar" id="cortado-age-bar"></div></div>
+                            <div class="stat-note">years old</div>
+                        </div>
+                        <div class="stat-card stat-time">
+                            <div class="stat-label">PEAK POPULARITY</div>
+                            <div class="stat-value" id="cortado-time">--</div>
+                            <div class="time-chart" id="cortado-time-chart">
+                                <div class="time-block" data-period="Morning"><span>AM</span></div>
+                                <div class="time-block" data-period="Afternoon"><span>PM</span></div>
+                                <div class="time-block" data-period="Night"><span>EVE</span></div>
+                            </div>
+                            <div class="stat-note">time of day</div>
+                        </div>
+                        <div class="stat-card stat-fav">
+                            <div class="stat-label">REPORTED AS FAVORITE</div>
+                            <div class="stat-value" id="cortado-fav">--</div>
+                            <div class="fav-dots" id="cortado-dots"></div>
+                            <div class="stat-note">survey respondents</div>
+                        </div>
+                    </div>
+                    <div class="sales-label-area">
+                        <div class="stat-label">TOTAL SALES SHARE</div>
+                        <div class="sales-percent" id="cortado-sales-pct">--%</div>
+                        <div class="stat-note">of all coffee drink sales · Watch the pour →</div>
+                    </div>
+                </div>
+
+                <!-- ESPRESSO -->
+                <div id="panel-espresso" class="content-panel drink-panel">
+                    <h2 class="drink-name">Espresso</h2>
+                    <div class="drink-stats-grid">
+                        <div class="stat-card stat-age">
+                            <div class="stat-label">AVG. AGE OF BUYER</div>
+                            <div class="stat-value" id="espresso-age">--</div>
+                            <div class="stat-bar-container"><div class="stat-bar" id="espresso-age-bar"></div></div>
+                            <div class="stat-note">years old</div>
+                        </div>
+                        <div class="stat-card stat-time">
+                            <div class="stat-label">PEAK POPULARITY</div>
+                            <div class="stat-value" id="espresso-time">--</div>
+                            <div class="time-chart" id="espresso-time-chart">
+                                <div class="time-block" data-period="Morning"><span>AM</span></div>
+                                <div class="time-block" data-period="Afternoon"><span>PM</span></div>
+                                <div class="time-block" data-period="Night"><span>EVE</span></div>
+                            </div>
+                            <div class="stat-note">time of day</div>
+                        </div>
+                        <div class="stat-card stat-fav">
+                            <div class="stat-label">REPORTED AS FAVORITE</div>
+                            <div class="stat-value" id="espresso-fav">--</div>
+                            <div class="fav-dots" id="espresso-dots"></div>
+                            <div class="stat-note">survey respondents</div>
+                        </div>
+                    </div>
+                    <div class="sales-label-area">
+                        <div class="stat-label">TOTAL SALES SHARE</div>
+                        <div class="sales-percent" id="espresso-sales-pct">--%</div>
+                        <div class="stat-note">of all coffee drink sales · Watch the pour →</div>
+                    </div>
+                </div>
+
+            </div><!-- /content-panels -->
+        </div><!-- /left-column -->
+
+        <!-- RIGHT COLUMN: Single persistent espresso machine -->
+        <div class="right-column">
+            <div class="espresso-machine-wrapper">
+                <svg id="espresso-machine" class="espresso-machine" viewBox="0 0 420 700" preserveAspectRatio="xMidYMid meet">
+                    <defs>
+                        <linearGradient id="machineBodyGrad" x1="0" y1="0" x2="1" y2="1">
+                            <stop offset="0%" stop-color="#3a3a3a"/>
+                            <stop offset="50%" stop-color="#2a2a2a"/>
+                            <stop offset="100%" stop-color="#1a1a1a"/>
+                        </linearGradient>
+                        <linearGradient id="machineSideGrad" x1="0" y1="0" x2="1" y2="0">
+                            <stop offset="0%" stop-color="#222"/>
+                            <stop offset="100%" stop-color="#333"/>
+                        </linearGradient>
+                        <linearGradient id="screenGrad" x1="0" y1="0" x2="0" y2="1">
+                            <stop offset="0%" stop-color="#1a1a2e"/>
+                            <stop offset="100%" stop-color="#0d0d1a"/>
+                        </linearGradient>
+                        <linearGradient id="copperAccent" x1="0" y1="0" x2="1" y2="1">
+                            <stop offset="0%" stop-color="#d4a574"/>
+                            <stop offset="50%" stop-color="#c8a97e"/>
+                            <stop offset="100%" stop-color="#b8956a"/>
+                        </linearGradient>
+                        <filter id="machineShadow">
+                            <feDropShadow dx="0" dy="4" stdDeviation="8" flood-color="#000" flood-opacity="0.4"/>
+                        </filter>
+                        <linearGradient id="espressoLiquid" x1="0" y1="0" x2="0" y2="1">
+                            <stop offset="0%" stop-color="#6b3a1f"/>
+                            <stop offset="30%" stop-color="#5c3317"/>
+                            <stop offset="100%" stop-color="#3e2009"/>
+                        </linearGradient>
+                        <linearGradient id="glassGrad" x1="0" y1="0" x2="1" y2="1">
+                            <stop offset="0%" stop-color="rgba(255,255,255,0.12)"/>
+                            <stop offset="50%" stop-color="rgba(255,255,255,0.04)"/>
+                            <stop offset="100%" stop-color="rgba(255,255,255,0.08)"/>
+                        </linearGradient>
+                        <linearGradient id="cremaGrad" x1="0" y1="0" x2="0" y2="1">
+                            <stop offset="0%" stop-color="#d4a055"/>
+                            <stop offset="100%" stop-color="#b8864a"/>
+                        </linearGradient>
+                        <linearGradient id="glassEdge" x1="0" y1="0" x2="1" y2="0">
+                            <stop offset="0%" stop-color="rgba(255,255,255,0.2)"/>
+                            <stop offset="50%" stop-color="rgba(255,255,255,0.05)"/>
+                            <stop offset="100%" stop-color="rgba(255,255,255,0.15)"/>
+                        </linearGradient>
+                        <clipPath id="glassClip">
+                            <path d="M177,588 L180,538 Q180,534 184,534 L236,534 Q240,534 240,538 L243,588 Z"/>
+                        </clipPath>
+                    </defs>
+
+                    <!-- ============ MACHINE BASE ============ -->
+                    <rect x="60" y="620" width="300" height="30" rx="4" fill="#222" filter="url(#machineShadow)"/>
+                    <rect x="70" y="618" width="280" height="8" rx="3" fill="url(#copperAccent)"/>
+
+                    <!-- Drip Tray -->
+                    <rect x="100" y="590" width="220" height="30" rx="6" fill="#333"/>
+                    <rect x="110" y="592" width="200" height="26" rx="4" fill="#222"/>
+                    <line x1="130" y1="595" x2="130" y2="615" stroke="#444" stroke-width="1"/>
+                    <line x1="155" y1="595" x2="155" y2="615" stroke="#444" stroke-width="1"/>
+                    <line x1="180" y1="595" x2="180" y2="615" stroke="#444" stroke-width="1"/>
+                    <line x1="205" y1="595" x2="205" y2="615" stroke="#444" stroke-width="1"/>
+                    <line x1="230" y1="595" x2="230" y2="615" stroke="#444" stroke-width="1"/>
+                    <line x1="255" y1="595" x2="255" y2="615" stroke="#444" stroke-width="1"/>
+                    <line x1="280" y1="595" x2="280" y2="615" stroke="#444" stroke-width="1"/>
+
+                    <!-- ============ MAIN BODY ============ -->
+                    <rect x="80" y="60" width="260" height="530" rx="12" fill="url(#machineBodyGrad)" filter="url(#machineShadow)"/>
+                    <rect x="80" y="60" width="15" height="530" rx="4" fill="url(#machineSideGrad)"/>
+                    <rect x="325" y="60" width="15" height="530" rx="4" fill="url(#machineSideGrad)"/>
+
+                    <!-- Top -->
+                    <rect x="75" y="50" width="270" height="25" rx="8" fill="#333"/>
+                    <rect x="85" y="45" width="250" height="15" rx="6" fill="url(#copperAccent)"/>
+
+                    <!-- Cup warmer -->
+                    <rect x="120" y="20" width="180" height="30" rx="6" fill="#2a2a2a"/>
+                    <rect x="130" y="25" width="160" height="20" rx="4" fill="#333"/>
+
+                    <!-- ============ SCREEN (Navigation Hub) ============ -->
+                    <rect x="115" y="90" width="190" height="250" rx="10" fill="#111" stroke="url(#copperAccent)" stroke-width="2"/>
+                    <rect x="120" y="95" width="180" height="240" rx="8" fill="url(#screenGrad)"/>
+
+                    <text x="210" y="118" text-anchor="middle" fill="#c8a97e" font-family="Inter, sans-serif" font-size="10" font-weight="600" letter-spacing="2">SELECT DRINK</text>
+                    <line x1="145" y1="126" x2="275" y2="126" stroke="#c8a97e" stroke-width="0.5" opacity="0.4"/>
+
+                    <!-- Navigation buttons -->
+                    <g class="nav-btn" data-target="home">
+                        <rect x="132" y="134" width="76" height="28" rx="5" class="nav-btn-bg active-nav"/>
+                        <text x="170" y="152" text-anchor="middle" class="nav-btn-text" font-family="Inter, sans-serif" font-size="9" font-weight="600">⌂ HOME</text>
+                    </g>
+                    <g class="nav-btn" data-target="latte">
+                        <rect x="214" y="134" width="76" height="28" rx="5" class="nav-btn-bg"/>
+                        <text x="252" y="152" text-anchor="middle" class="nav-btn-text" font-family="Inter, sans-serif" font-size="9" font-weight="500">LATTE</text>
+                    </g>
+                    <g class="nav-btn" data-target="cappuccino">
+                        <rect x="132" y="168" width="76" height="28" rx="5" class="nav-btn-bg"/>
+                        <text x="170" y="186" text-anchor="middle" class="nav-btn-text" font-family="Inter, sans-serif" font-size="9" font-weight="500">CAPPUCCINO</text>
+                    </g>
+                    <g class="nav-btn" data-target="americano">
+                        <rect x="214" y="168" width="76" height="28" rx="5" class="nav-btn-bg"/>
+                        <text x="252" y="186" text-anchor="middle" class="nav-btn-text" font-family="Inter, sans-serif" font-size="9" font-weight="500">AMERICANO</text>
+                    </g>
+                    <g class="nav-btn" data-target="cortado">
+                        <rect x="132" y="202" width="76" height="28" rx="5" class="nav-btn-bg"/>
+                        <text x="170" y="220" text-anchor="middle" class="nav-btn-text" font-family="Inter, sans-serif" font-size="9" font-weight="500">CORTADO</text>
+                    </g>
+                    <g class="nav-btn" data-target="espresso">
+                        <rect x="214" y="202" width="76" height="28" rx="5" class="nav-btn-bg"/>
+                        <text x="252" y="220" text-anchor="middle" class="nav-btn-text" font-family="Inter, sans-serif" font-size="9" font-weight="500">ESPRESSO</text>
+                    </g>
+
+                    <!-- Status -->
+                    <circle cx="155" cy="248" r="3.5" fill="#4ade80" opacity="0.8">
+                        <animate attributeName="opacity" values="0.8;0.3;0.8" dur="2.5s" repeatCount="indefinite"/>
+                    </circle>
+                    <text x="168" y="251" fill="#555" font-family="Inter, sans-serif" font-size="7.5" letter-spacing="1.5">READY</text>
+
+                    <!-- On-screen drink label + pct (shown when pouring) -->
+                    <text id="screen-drink-label" x="210" y="280" text-anchor="middle" fill="#c8a97e" font-family="Playfair Display, serif" font-size="13" font-weight="600" opacity="0"></text>
+                    <text id="screen-pct-label" x="210" y="298" text-anchor="middle" fill="#777" font-family="JetBrains Mono, monospace" font-size="10" opacity="0"></text>
+
+                    <!-- ============ COPPER BAND ============ -->
+                    <rect x="95" y="345" width="230" height="6" rx="3" fill="url(#copperAccent)"/>
+
+                    <!-- ============ PRESSURE GAUGES ============ -->
+                    <circle cx="155" cy="385" r="28" fill="#222" stroke="#555" stroke-width="2"/>
+                    <circle cx="155" cy="385" r="22" fill="#1a1a1a" stroke="#c8a97e" stroke-width="1"/>
+                    <text x="155" y="381" text-anchor="middle" fill="#c8a97e" font-family="JetBrains Mono, monospace" font-size="9">9.0</text>
+                    <text x="155" y="393" text-anchor="middle" fill="#888" font-family="Inter, sans-serif" font-size="6">BAR</text>
+                    <line x1="155" y1="367" x2="162" y2="380" stroke="#e74c3c" stroke-width="1.5" stroke-linecap="round">
+                        <animateTransform attributeName="transform" type="rotate" values="-5,155,385;5,155,385;-5,155,385" dur="3s" repeatCount="indefinite"/>
+                    </line>
+
+                    <circle cx="265" cy="385" r="28" fill="#222" stroke="#555" stroke-width="2"/>
+                    <circle cx="265" cy="385" r="22" fill="#1a1a1a" stroke="#c8a97e" stroke-width="1"/>
+                    <text x="265" y="381" text-anchor="middle" fill="#c8a97e" font-family="JetBrains Mono, monospace" font-size="9">93°</text>
+                    <text x="265" y="393" text-anchor="middle" fill="#888" font-family="Inter, sans-serif" font-size="6">TEMP</text>
+                    <line x1="265" y1="367" x2="258" y2="380" stroke="#e74c3c" stroke-width="1.5" stroke-linecap="round">
+                        <animateTransform attributeName="transform" type="rotate" values="3,265,385;-3,265,385;3,265,385" dur="4s" repeatCount="indefinite"/>
+                    </line>
+
+                    <!-- Steam/water knobs -->
+                    <circle cx="355" cy="445" r="14" fill="#333" stroke="#555" stroke-width="2"/>
+                    <circle cx="355" cy="445" r="8" fill="url(#copperAccent)"/>
+                    <circle cx="69" cy="445" r="14" fill="#333" stroke="#555" stroke-width="2"/>
+                    <circle cx="69" cy="445" r="8" fill="url(#copperAccent)"/>
+
+                    <!-- ============ GROUP HEAD + PORTAFILTER ============ -->
+                    <rect x="175" y="428" width="70" height="12" rx="4" fill="#555"/>
+                    <rect x="178" y="430" width="64" height="8" rx="3" fill="url(#copperAccent)"/>
+
+                    <!-- Portafilter basket -->
+                    <path d="M185,440 L185,482 Q185,492 195,494 L225,494 Q235,492 235,482 L235,440 Z" fill="#444"/>
+                    <path d="M188,443 L188,480 Q188,488 196,490 L224,490 Q232,488 232,480 L232,443 Z" fill="#333"/>
+
+                    <!-- Handle -->
+                    <rect x="235" y="455" width="42" height="10" rx="5" fill="#444"/>
+                    <rect x="237" y="457" width="38" height="6" rx="3" fill="#3a3a3a"/>
+                    <circle cx="279" cy="460" r="7" fill="#444"/>
+                    <circle cx="279" cy="460" r="4" fill="#3a3a3a"/>
+
+                    <!-- Double spout -->
+                    <path d="M198,494 L198,516 Q198,520 200,520" fill="none" stroke="#666" stroke-width="4" stroke-linecap="round"/>
+                    <path d="M222,494 L222,516 Q222,520 220,520" fill="none" stroke="#666" stroke-width="4" stroke-linecap="round"/>
+                    <ellipse cx="200" cy="520" rx="4" ry="2.5" fill="#777"/>
+                    <ellipse cx="220" cy="520" rx="4" ry="2.5" fill="#777"/>
+
+                    <!-- ============ ESPRESSO GLASS (hidden by default) ============ -->
+                    <g id="glass-group" opacity="0">
+                        <ellipse cx="210" cy="589" rx="32" ry="3" fill="#000" opacity="0.3"/>
+                        <!-- Glass body -->
+                        <path d="M177,588 L180,536 Q180,532 184,532 L236,532 Q240,532 240,536 L243,588"
+                              fill="url(#glassGrad)" stroke="url(#glassEdge)" stroke-width="1.5"/>
+                        <!-- Liquid fill (clipped) -->
+                        <g clip-path="url(#glassClip)">
+                            <rect id="liquid-fill" x="177" y="588" width="66" height="0" fill="url(#espressoLiquid)"/>
+                            <rect id="liquid-surface" x="177" y="588" width="66" height="3" fill="url(#cremaGrad)" opacity="0" rx="1"/>
+                        </g>
+                        <!-- Glass rim -->
+                        <path d="M180,536 Q180,532 184,532 L236,532 Q240,532 240,536"
+                              fill="none" stroke="rgba(255,255,255,0.25)" stroke-width="1"/>
+                        <!-- Reflection -->
+                        <rect x="182" y="538" width="5" height="38" rx="2.5" fill="rgba(255,255,255,0.06)"/>
+                        <!-- Base -->
+                        <rect x="175" y="586" width="70" height="5" rx="2" fill="rgba(255,255,255,0.08)" stroke="rgba(255,255,255,0.1)" stroke-width="0.5"/>
+                        <!-- Measurement ticks -->
+                        <line x1="242" y1="548" x2="247" y2="548" stroke="rgba(255,255,255,0.15)" stroke-width="0.5"/>
+                        <line x1="242" y1="558" x2="247" y2="558" stroke="rgba(255,255,255,0.15)" stroke-width="0.5"/>
+                        <line x1="242" y1="568" x2="247" y2="568" stroke="rgba(255,255,255,0.15)" stroke-width="0.5"/>
+                        <line x1="242" y1="578" x2="247" y2="578" stroke="rgba(255,255,255,0.15)" stroke-width="0.5"/>
+                        <!-- Percent text under glass -->
+                        <text id="glass-pct-text" x="210" y="608" text-anchor="middle" fill="#c8a97e" font-family="JetBrains Mono, monospace" font-size="11" font-weight="500" opacity="0"></text>
+                    </g>
+
+                    <!-- ============ DRIP ANIMATION ELEMENTS ============ -->
+                    <g id="drip-group" opacity="0">
+                        <ellipse class="drip-drop drip-l1" cx="200" cy="520" rx="1.8" ry="2.5" fill="#6b3a1f" opacity="0"/>
+                        <ellipse class="drip-drop drip-l2" cx="200" cy="522" rx="1.3" ry="2" fill="#5c3317" opacity="0"/>
+                        <ellipse class="drip-drop drip-r1" cx="220" cy="520" rx="1.8" ry="2.5" fill="#6b3a1f" opacity="0"/>
+                        <ellipse class="drip-drop drip-r2" cx="220" cy="522" rx="1.3" ry="2" fill="#5c3317" opacity="0"/>
+                        <rect id="stream-left" x="199.2" y="520" width="1.8" height="0" fill="#6b3a1f" opacity="0" rx="0.9"/>
+                        <rect id="stream-right" x="219.2" y="520" width="1.8" height="0" fill="#6b3a1f" opacity="0" rx="0.9"/>
+                    </g>
+
+                </svg>
+            </div>
+        </div><!-- /right-column -->
+    </div><!-- /app-layout -->
+
+    <script src="script.js"></script>
+</body>
+</html>

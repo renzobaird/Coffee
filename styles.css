@@ -1,0 +1,499 @@
+/* ============================================
+   BREW LOGIC — Styles
+   Single-page, no-scroll, responsive
+   ============================================ */
+
+*, *::before, *::after {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+:root {
+    --bg-dark: #0f0f0f;
+    --bg-card: #1a1a1a;
+    --bg-card-hover: #222;
+    --copper: #c8a97e;
+    --copper-light: #d4b896;
+    --copper-dark: #b8956a;
+    --espresso: #5c3317;
+    --espresso-light: #6b3a1f;
+    --crema: #d4a055;
+    --text-primary: #f0ece4;
+    --text-secondary: #a09888;
+    --text-muted: #666;
+    --accent-green: #4ade80;
+    --font-display: 'Playfair Display', Georgia, serif;
+    --font-body: 'Inter', -apple-system, sans-serif;
+    --font-mono: 'JetBrains Mono', 'Fira Code', monospace;
+}
+
+html, body {
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    font-family: var(--font-body);
+    background: var(--bg-dark);
+    color: var(--text-primary);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+/* ============================================
+   APP LAYOUT — 2 column, full viewport
+   ============================================ */
+
+.app-layout {
+    display: grid;
+    grid-template-columns: 1fr minmax(260px, 32vw);
+    width: 100vw;
+    height: 100vh;
+    overflow: hidden;
+}
+
+/* ── LEFT COLUMN ── */
+.left-column {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    padding: clamp(1rem, 2.5vh, 2.5rem) clamp(1.5rem, 3vw, 4rem);
+    overflow: hidden;
+}
+
+.logo-area {
+    flex-shrink: 0;
+    margin-bottom: clamp(0.5rem, 1.5vh, 1.5rem);
+}
+
+.logo {
+    display: flex;
+    align-items: center;
+    gap: clamp(0.5rem, 0.8vw, 1rem);
+}
+
+.logo-icon {
+    width: clamp(1.8rem, 2.5vw, 2.8rem);
+    height: clamp(1.8rem, 2.5vw, 2.8rem);
+    flex-shrink: 0;
+}
+
+.logo-text {
+    display: flex;
+    flex-direction: column;
+}
+
+.logo-title {
+    font-family: var(--font-display);
+    font-size: clamp(0.9rem, 1.4vw, 1.5rem);
+    font-weight: 700;
+    color: var(--copper);
+    letter-spacing: 3px;
+    line-height: 1.2;
+}
+
+.logo-subtitle {
+    font-size: clamp(0.5rem, 0.65vw, 0.72rem);
+    color: var(--text-secondary);
+    letter-spacing: 1.5px;
+    font-weight: 300;
+    text-transform: uppercase;
+}
+
+/* ── CONTENT PANELS ── */
+.content-panels {
+    flex: 1;
+    position: relative;
+    overflow: hidden;
+}
+
+.content-panel {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: clamp(1rem, 2.2vh, 2.5rem);
+    opacity: 0;
+    visibility: hidden;
+    transform: translateX(30px);
+    transition: opacity 0.5s ease, transform 0.5s ease, visibility 0.5s ease;
+    padding-right: clamp(0.5rem, 2vw, 2rem);
+}
+
+.content-panel.active {
+    opacity: 1;
+    visibility: visible;
+    transform: translateX(0);
+}
+
+.content-panel.leaving {
+    opacity: 0;
+    transform: translateX(-30px);
+    visibility: visible;
+}
+
+/* ── RIGHT COLUMN ── */
+.right-column {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+    padding: clamp(0.5rem, 1vh, 1rem) clamp(0.5rem, 1vw, 1.5rem);
+    overflow: hidden;
+}
+
+.espresso-machine-wrapper {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.espresso-machine {
+    width: 100%;
+    height: 100%;
+    max-height: 97vh;
+}
+
+/* ============================================
+   HOME SECTION
+   ============================================ */
+
+.home-headline {
+    display: flex;
+    flex-direction: column;
+}
+
+.headline-accent {
+    font-family: var(--font-mono);
+    font-size: clamp(0.7rem, 1vw, 1.1rem);
+    color: var(--copper);
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    font-weight: 400;
+}
+
+.headline-main {
+    font-family: var(--font-display);
+    font-size: clamp(2.2rem, 4.5vw, 5rem);
+    font-weight: 700;
+    color: var(--text-primary);
+    line-height: 1.05;
+    margin-top: clamp(0.2rem, 0.4vh, 0.5rem);
+}
+
+.home-tagline {
+    font-size: clamp(0.8rem, 1vw, 1.1rem);
+    color: var(--text-secondary);
+    line-height: 1.7;
+    max-width: 520px;
+    font-weight: 300;
+}
+
+.home-drink-cards {
+    display: flex;
+    gap: clamp(0.5rem, 1vw, 1.2rem);
+    flex-wrap: wrap;
+}
+
+.drink-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: clamp(0.3rem, 0.5vh, 0.5rem);
+    padding: clamp(0.7rem, 1vw, 1.2rem) clamp(0.8rem, 1.2vw, 1.4rem);
+    background: var(--bg-card);
+    border: 1px solid #2a2a2a;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    min-width: clamp(64px, 7vw, 95px);
+}
+
+.drink-card:hover {
+    background: var(--bg-card-hover);
+    border-color: var(--copper);
+    transform: translateY(-3px);
+    box-shadow: 0 8px 24px rgba(200,169,126,0.08);
+}
+
+.drink-card-icon {
+    width: clamp(1.4rem, 2vw, 2.2rem);
+    height: clamp(1.4rem, 2vw, 2.2rem);
+}
+
+.drink-card-icon svg {
+    width: 100%;
+    height: 100%;
+}
+
+.drink-card span {
+    font-size: clamp(0.55rem, 0.7vw, 0.78rem);
+    color: var(--text-secondary);
+    font-weight: 500;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+}
+
+/* ============================================
+   DRINK PANEL (Template)
+   ============================================ */
+
+.drink-panel {
+    gap: clamp(0.8rem, 1.8vh, 2rem);
+}
+
+.drink-name {
+    font-family: var(--font-display);
+    font-size: clamp(2rem, 4vw, 4.5rem);
+    font-weight: 700;
+    color: var(--text-primary);
+    line-height: 1;
+    letter-spacing: -0.02em;
+}
+
+.drink-name::after {
+    content: '';
+    display: block;
+    width: clamp(36px, 4.5vw, 72px);
+    height: 3px;
+    background: var(--copper);
+    border-radius: 2px;
+    margin-top: clamp(0.3rem, 0.6vh, 0.7rem);
+}
+
+/* Stats Grid */
+.drink-stats-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: clamp(0.6rem, 1.2vw, 1.4rem);
+}
+
+.stat-card {
+    background: var(--bg-card);
+    border: 1px solid #2a2a2a;
+    border-radius: 10px;
+    padding: clamp(0.8rem, 1.2vw, 1.6rem);
+    display: flex;
+    flex-direction: column;
+    gap: clamp(0.2rem, 0.4vh, 0.5rem);
+    transition: border-color 0.3s ease;
+}
+
+.stat-card:hover {
+    border-color: #3a3a3a;
+}
+
+.stat-label {
+    font-size: clamp(0.5rem, 0.62vw, 0.7rem);
+    color: var(--copper);
+    letter-spacing: 2px;
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
+.stat-value {
+    font-family: var(--font-display);
+    font-size: clamp(1.6rem, 3vw, 3.2rem);
+    font-weight: 700;
+    color: var(--text-primary);
+    line-height: 1;
+}
+
+.stat-note {
+    font-size: clamp(0.55rem, 0.62vw, 0.7rem);
+    color: var(--text-muted);
+    font-weight: 300;
+}
+
+/* Age bar */
+.stat-bar-container {
+    width: 100%;
+    height: clamp(3px, 0.4vh, 5px);
+    background: #2a2a2a;
+    border-radius: 3px;
+    overflow: hidden;
+    margin: clamp(0.1rem, 0.2vh, 0.3rem) 0;
+}
+
+.stat-bar {
+    height: 100%;
+    width: 0;
+    background: linear-gradient(90deg, var(--copper-dark), var(--copper-light));
+    border-radius: 3px;
+    transition: width 1.5s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+/* Time chart */
+.time-chart {
+    display: flex;
+    gap: clamp(0.2rem, 0.4vw, 0.4rem);
+    margin: clamp(0.1rem, 0.2vh, 0.2rem) 0;
+}
+
+.time-block {
+    flex: 1;
+    height: clamp(20px, 2.5vh, 32px);
+    background: #2a2a2a;
+    border-radius: 5px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.5s ease;
+}
+
+.time-block.peak {
+    background: var(--copper);
+}
+
+.time-block.peak span {
+    color: #1a1a1a;
+    font-weight: 600;
+}
+
+.time-block span {
+    font-size: clamp(0.48rem, 0.58vw, 0.65rem);
+    color: var(--text-muted);
+    font-weight: 500;
+    letter-spacing: 1px;
+}
+
+/* Favorite dots */
+.fav-dots {
+    display: flex;
+    gap: 2px;
+    flex-wrap: wrap;
+    margin: clamp(0.1rem, 0.2vh, 0.2rem) 0;
+}
+
+.fav-dot {
+    width: clamp(5px, 0.5vw, 7px);
+    height: clamp(5px, 0.5vw, 7px);
+    background: var(--copper);
+    border-radius: 50%;
+    opacity: 0;
+    animation: dotFadeIn 0.3s ease forwards;
+}
+
+.fav-dot.empty {
+    background: #2a2a2a;
+}
+
+@keyframes dotFadeIn {
+    to { opacity: 1; }
+}
+
+/* Sales label area */
+.sales-label-area {
+    display: flex;
+    flex-direction: column;
+    gap: clamp(0.15rem, 0.25vh, 0.3rem);
+}
+
+.sales-percent {
+    font-family: var(--font-mono);
+    font-size: clamp(1.4rem, 2.5vw, 2.8rem);
+    font-weight: 500;
+    color: var(--copper-light);
+    line-height: 1;
+}
+
+/* ============================================
+   NAV BUTTONS (on machine screen)
+   ============================================ */
+
+.nav-btn {
+    cursor: pointer;
+}
+
+.nav-btn-bg {
+    fill: rgba(200, 169, 126, 0.08);
+    stroke: rgba(200, 169, 126, 0.25);
+    stroke-width: 1;
+    transition: fill 0.25s ease, stroke 0.25s ease;
+}
+
+.nav-btn:hover .nav-btn-bg {
+    fill: rgba(200, 169, 126, 0.2);
+    stroke: var(--copper);
+    stroke-width: 1.5;
+}
+
+.nav-btn-bg.active-nav {
+    fill: #c8a97e !important;
+    stroke: #d4b896 !important;
+    stroke-width: 1.5;
+}
+
+.nav-btn-text {
+    fill: #c8a97e;
+    pointer-events: none;
+    transition: fill 0.2s ease;
+}
+
+.nav-btn-bg.active-nav + .nav-btn-text {
+    fill: #1a1a2e !important;
+}
+
+/* ============================================
+   RESPONSIVE
+   ============================================ */
+
+@media (max-width: 1024px) {
+    .app-layout {
+        grid-template-columns: 1fr minmax(220px, 34vw);
+    }
+    .drink-stats-grid {
+        gap: clamp(0.4rem, 0.8vw, 0.8rem);
+    }
+}
+
+@media (max-width: 850px) {
+    .app-layout {
+        grid-template-columns: 1fr minmax(200px, 30vw);
+    }
+    .left-column {
+        padding: 0.8rem 1rem;
+    }
+}
+
+@media (min-width: 1920px) {
+    .app-layout {
+        grid-template-columns: 1fr minmax(380px, 28vw);
+    }
+    .left-column {
+        padding: 2.5rem 4.5rem;
+    }
+}
+
+@media (min-width: 2560px) {
+    .left-column {
+        padding: 3rem 6rem;
+    }
+}
+
+@media (max-height: 680px) {
+    .stat-card {
+        padding: 0.6rem;
+    }
+    .stat-value {
+        font-size: clamp(1.3rem, 2.2vw, 2.2rem);
+    }
+    .drink-name {
+        font-size: clamp(1.6rem, 3vw, 3rem);
+    }
+}
+
+/* ============================================
+   UTILITY
+   ============================================ */
+
+::selection {
+    background: var(--copper);
+    color: var(--bg-dark);
+}
+
+svg {
+    shape-rendering: geometricPrecision;
+}
