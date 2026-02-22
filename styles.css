@@ -1,6 +1,6 @@
 /* ============================================
-   BREW LOGIC — Styles
-   Single-page, no-scroll, responsive
+   BREW LOGIC — Modern Styles
+   Scene-scaled layout · Image-anchored overlays
    ============================================ */
 
 *, *::before, *::after {
@@ -10,22 +10,41 @@
 }
 
 :root {
-    --bg-dark: #0f0f0f;
-    --bg-card: #1a1a1a;
-    --bg-card-hover: #222;
-    --copper: #c8a97e;
-    --copper-light: #d4b896;
-    --copper-dark: #b8956a;
-    --espresso: #5c3317;
-    --espresso-light: #6b3a1f;
-    --crema: #d4a055;
-    --text-primary: #f0ece4;
-    --text-secondary: #a09888;
-    --text-muted: #666;
-    --accent-green: #4ade80;
-    --font-display: 'Playfair Display', Georgia, serif;
-    --font-body: 'Inter', -apple-system, sans-serif;
-    --font-mono: 'JetBrains Mono', 'Fira Code', monospace;
+    /* ── Design tokens ── */
+    --text-primary:   #1a1a1a;
+    --text-secondary: #555;
+    --text-muted:     #999;
+    --copper:         #b8956a;
+    --copper-light:   #d4b896;
+    --copper-dark:    #a07c52;
+    --espresso:       #5c3317;
+    --crema:          #d4a055;
+    --card-bg:        rgba(255, 255, 255, 0.72);
+    --card-border:    rgba(0, 0, 0, 0.07);
+    --card-shadow:    0 2px 12px rgba(0, 0, 0, 0.06);
+    --font-display:   'Montserrat', -apple-system, sans-serif;
+    --font-body:      'Inter', -apple-system, sans-serif;
+    --font-mono:      'JetBrains Mono', 'Fira Code', monospace;
+
+    /* ═══════════════════════════════════════════
+       MACHINE OVERLAY POSITIONS
+       All values in the 1920×1080 scene space.
+       Pixel-matched to EspressoMachine.png
+       ═══════════════════════════════════════════ */
+    --screen-left:   1130px;
+    --screen-top:    82px;
+    --screen-w:      255px;
+    --screen-h:      370px;
+
+    --drip-left:     1265px;
+    --drip-top:      520px;
+    --drip-w:        50px;
+    --drip-h:        125px;
+
+    --cup-left:      1215px;
+    --cup-top:       700px;
+    --cup-w:         160px;
+    --cup-h:         240px;
 }
 
 html, body {
@@ -33,73 +52,86 @@ html, body {
     height: 100%;
     overflow: hidden;
     font-family: var(--font-body);
-    background: var(--bg-dark);
+    background: #f0ede8;
     color: var(--text-primary);
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
 }
 
 /* ============================================
-   APP LAYOUT — 2 column, full viewport
+   VIEWPORT + SCENE SCALING
+   The scene is a fixed 1920×1080 canvas.
+   JS scales it uniformly to fill the viewport.
+   All children use absolute px positioning.
    ============================================ */
 
-.app-layout {
-    display: grid;
-    grid-template-columns: 1fr minmax(260px, 32vw);
+.viewport {
+    position: relative;
     width: 100vw;
     height: 100vh;
     overflow: hidden;
+    background: #ffffff;          /* white letterbox behind image */
 }
 
-/* ── LEFT COLUMN ── */
+.scene {
+    position: absolute;
+    width: 1920px;
+    height: 1080px;
+    transform-origin: 0 0;
+    will-change: transform;
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+}
+
+.bg-image {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 1920px;
+    height: 1080px;
+    object-fit: cover;
+    pointer-events: none;
+    user-select: none;
+    -webkit-user-select: none;
+}
+
+/* ============================================
+   LEFT COLUMN — Content area
+   ============================================ */
+
 .left-column {
+    position: absolute;
+    left: 20px;
+    top: 50px;
+    width: 960px;
+    height: 980px;
     display: flex;
     flex-direction: column;
-    height: 100vh;
-    padding: clamp(1rem, 2.5vh, 2.5rem) clamp(1.5rem, 3vw, 4rem);
-    overflow: hidden;
+    z-index: 5;
 }
 
+/* ── Logo ── */
 .logo-area {
     flex-shrink: 0;
-    margin-bottom: clamp(0.5rem, 1.5vh, 1.5rem);
+    margin-bottom: 24px;
 }
 
 .logo {
     display: flex;
     align-items: center;
-    gap: clamp(0.5rem, 0.8vw, 1rem);
 }
 
-.logo-icon {
-    width: clamp(1.8rem, 2.5vw, 2.8rem);
-    height: clamp(1.8rem, 2.5vw, 2.8rem);
-    flex-shrink: 0;
+.logo-img {
+    height: 280px;
+    width: auto;
+    max-width: 720px;
+    object-fit: contain;
+    pointer-events: none;
+    user-select: none;
+    -webkit-user-select: none;
 }
 
-.logo-text {
-    display: flex;
-    flex-direction: column;
-}
-
-.logo-title {
-    font-family: var(--font-display);
-    font-size: clamp(0.9rem, 1.4vw, 1.5rem);
-    font-weight: 700;
-    color: var(--copper);
-    letter-spacing: 3px;
-    line-height: 1.2;
-}
-
-.logo-subtitle {
-    font-size: clamp(0.5rem, 0.65vw, 0.72rem);
-    color: var(--text-secondary);
-    letter-spacing: 1.5px;
-    font-weight: 300;
-    text-transform: uppercase;
-}
-
-/* ── CONTENT PANELS ── */
+/* ── Content Panels ── */
 .content-panels {
     flex: 1;
     position: relative;
@@ -112,12 +144,12 @@ html, body {
     display: flex;
     flex-direction: column;
     justify-content: center;
-    gap: clamp(1rem, 2.2vh, 2.5rem);
+    gap: 36px;
     opacity: 0;
     visibility: hidden;
     transform: translateX(30px);
     transition: opacity 0.5s ease, transform 0.5s ease, visibility 0.5s ease;
-    padding-right: clamp(0.5rem, 2vw, 2rem);
+    padding-right: 20px;
 }
 
 .content-panel.active {
@@ -132,30 +164,6 @@ html, body {
     visibility: visible;
 }
 
-/* ── RIGHT COLUMN ── */
-.right-column {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    height: 100vh;
-    padding: clamp(0.5rem, 1vh, 1rem) clamp(0.5rem, 1vw, 1.5rem);
-    overflow: hidden;
-}
-
-.espresso-machine-wrapper {
-    width: 100%;
-    height: 100%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.espresso-machine {
-    width: 100%;
-    height: 100%;
-    max-height: 97vh;
-}
-
 /* ============================================
    HOME SECTION
    ============================================ */
@@ -166,34 +174,34 @@ html, body {
 }
 
 .headline-accent {
-    font-family: var(--font-mono);
-    font-size: clamp(0.7rem, 1vw, 1.1rem);
+    font-family: var(--font-body);
+    font-size: 18px;
     color: var(--copper);
-    letter-spacing: 4px;
+    letter-spacing: 5px;
     text-transform: uppercase;
-    font-weight: 400;
+    font-weight: 700;
 }
 
 .headline-main {
     font-family: var(--font-display);
-    font-size: clamp(2.2rem, 4.5vw, 5rem);
-    font-weight: 700;
+    font-size: 92px;
+    font-weight: 900;
     color: var(--text-primary);
     line-height: 1.05;
-    margin-top: clamp(0.2rem, 0.4vh, 0.5rem);
+    margin-top: 8px;
 }
 
 .home-tagline {
-    font-size: clamp(0.8rem, 1vw, 1.1rem);
+    font-size: 22px;
     color: var(--text-secondary);
     line-height: 1.7;
-    max-width: 520px;
-    font-weight: 300;
+    max-width: 750px;
+    font-weight: 500;
 }
 
 .home-drink-cards {
     display: flex;
-    gap: clamp(0.5rem, 1vw, 1.2rem);
+    gap: 14px;
     flex-wrap: wrap;
 }
 
@@ -201,26 +209,28 @@ html, body {
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: clamp(0.3rem, 0.5vh, 0.5rem);
-    padding: clamp(0.7rem, 1vw, 1.2rem) clamp(0.8rem, 1.2vw, 1.4rem);
-    background: var(--bg-card);
-    border: 1px solid #2a2a2a;
-    border-radius: 10px;
+    gap: 8px;
+    padding: 18px 24px;
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
+    border-radius: 14px;
     cursor: pointer;
     transition: all 0.3s ease;
-    min-width: clamp(64px, 7vw, 95px);
+    min-width: 110px;
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
 }
 
 .drink-card:hover {
-    background: var(--bg-card-hover);
+    background: rgba(255, 255, 255, 0.95);
     border-color: var(--copper);
     transform: translateY(-3px);
-    box-shadow: 0 8px 24px rgba(200,169,126,0.08);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
 }
 
 .drink-card-icon {
-    width: clamp(1.4rem, 2vw, 2.2rem);
-    height: clamp(1.4rem, 2vw, 2.2rem);
+    width: 36px;
+    height: 36px;
 }
 
 .drink-card-icon svg {
@@ -229,25 +239,25 @@ html, body {
 }
 
 .drink-card span {
-    font-size: clamp(0.55rem, 0.7vw, 0.78rem);
+    font-size: 13px;
     color: var(--text-secondary);
-    font-weight: 500;
-    letter-spacing: 1px;
+    font-weight: 600;
+    letter-spacing: 1.5px;
     text-transform: uppercase;
 }
 
 /* ============================================
-   DRINK PANEL (Template)
+   DRINK PANEL
    ============================================ */
 
 .drink-panel {
-    gap: clamp(0.8rem, 1.8vh, 2rem);
+    gap: 32px;
 }
 
 .drink-name {
     font-family: var(--font-display);
-    font-size: clamp(2rem, 4vw, 4.5rem);
-    font-weight: 700;
+    font-size: 60px;
+    font-weight: 900;
     color: var(--text-primary);
     line-height: 1;
     letter-spacing: -0.02em;
@@ -256,233 +266,610 @@ html, body {
 .drink-name::after {
     content: '';
     display: block;
-    width: clamp(36px, 4.5vw, 72px);
-    height: 3px;
+    width: 80px;
+    height: 4px;
     background: var(--copper);
     border-radius: 2px;
-    margin-top: clamp(0.3rem, 0.6vh, 0.7rem);
+    margin-top: 14px;
 }
 
-/* Stats Grid */
+/* ── Stats Grid ── */
 .drink-stats-grid {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
-    gap: clamp(0.6rem, 1.2vw, 1.4rem);
+    gap: 20px;
 }
 
 .stat-card {
-    background: var(--bg-card);
-    border: 1px solid #2a2a2a;
-    border-radius: 10px;
-    padding: clamp(0.8rem, 1.2vw, 1.6rem);
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
+    border-radius: 14px;
+    padding: 28px;
     display: flex;
     flex-direction: column;
-    gap: clamp(0.2rem, 0.4vh, 0.5rem);
+    gap: 10px;
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    box-shadow: var(--card-shadow);
     transition: border-color 0.3s ease;
 }
 
 .stat-card:hover {
-    border-color: #3a3a3a;
+    border-color: rgba(184, 149, 106, 0.3);
 }
 
 .stat-label {
-    font-size: clamp(0.5rem, 0.62vw, 0.7rem);
+    font-size: 13px;
     color: var(--copper);
     letter-spacing: 2px;
-    font-weight: 600;
+    font-weight: 700;
     text-transform: uppercase;
 }
 
-.stat-value {
+/* ─── KPI Number ─── */
+.kpi-num {
     font-family: var(--font-display);
-    font-size: clamp(1.6rem, 3vw, 3.2rem);
-    font-weight: 700;
+    font-size: 56px;
+    font-weight: 900;
     color: var(--text-primary);
+    line-height: 1;
+    margin: 2px 0 6px;
+}
+
+.kpi-unit {
+    font-family: var(--font-body);
+    font-size: 16px;
+    font-weight: 500;
+    color: var(--text-muted);
+    margin-left: 4px;
+}
+
+/* ─── Histogram (Age distribution) ─── */
+.hist-chart {
+    display: flex;
+    align-items: flex-end;
+    gap: 4px;
+    height: 80px;
+    margin-top: 4px;
+}
+
+.hist-col {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    flex: 1;
+    height: 100%;
+    justify-content: flex-end;
+    gap: 4px;
+}
+
+.hist-bar {
+    width: 100%;
+    background: #e0dbd4;
+    border-radius: 3px 3px 0 0;
+    transition: height 0.75s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+.hist-col.hist-peak .hist-bar {
+    background: linear-gradient(180deg, var(--copper-light) 0%, var(--copper-dark) 100%);
+}
+
+.hist-lbl {
+    font-size: 10px;
+    color: var(--text-muted);
+    font-weight: 600;
+    white-space: nowrap;
     line-height: 1;
 }
 
-.stat-note {
-    font-size: clamp(0.55rem, 0.62vw, 0.7rem);
-    color: var(--text-muted);
-    font-weight: 300;
+.hist-col.hist-peak .hist-lbl {
+    color: var(--copper-dark);
+    font-weight: 700;
 }
 
-/* Age bar */
-.stat-bar-container {
-    width: 100%;
-    height: clamp(3px, 0.4vh, 5px);
-    background: #2a2a2a;
-    border-radius: 3px;
-    overflow: hidden;
-    margin: clamp(0.1rem, 0.2vh, 0.3rem) 0;
-}
-
-.stat-bar {
-    height: 100%;
-    width: 0;
-    background: linear-gradient(90deg, var(--copper-dark), var(--copper-light));
-    border-radius: 3px;
-    transition: width 1.5s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-}
-
-/* Time chart */
-.time-chart {
+/* ─── Column Chart (Time of Day) ─── */
+.col-chart {
     display: flex;
-    gap: clamp(0.2rem, 0.4vw, 0.4rem);
-    margin: clamp(0.1rem, 0.2vh, 0.2rem) 0;
+    align-items: flex-end;
+    gap: 10px;
+    height: 100px;
+    margin-top: 10px;
 }
 
-.time-block {
-    flex: 1;
-    height: clamp(20px, 2.5vh, 32px);
-    background: #2a2a2a;
-    border-radius: 5px;
+.col-group {
     display: flex;
+    flex-direction: column;
     align-items: center;
-    justify-content: center;
-    transition: all 0.5s ease;
+    flex: 1;
+    height: 100%;
+    justify-content: flex-end;
+    gap: 6px;
 }
 
-.time-block.peak {
-    background: var(--copper);
+.col-bar-wrap {
+    flex: 1;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
 }
 
-.time-block.peak span {
-    color: #1a1a1a;
-    font-weight: 600;
+.col-bar {
+    width: 100%;
+    background: #e0dbd4;
+    border-radius: 4px 4px 0 0;
+    height: 0;
+    transition: height 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94);
 }
 
-.time-block span {
-    font-size: clamp(0.48rem, 0.58vw, 0.65rem);
+.col-group.col-peak .col-bar {
+    background: linear-gradient(180deg, var(--copper-light) 0%, var(--copper-dark) 100%);
+}
+
+.col-lbl {
+    font-size: 12px;
     color: var(--text-muted);
-    font-weight: 500;
+    font-weight: 600;
     letter-spacing: 1px;
 }
 
-/* Favorite dots */
-.fav-dots {
-    display: flex;
-    gap: 2px;
-    flex-wrap: wrap;
-    margin: clamp(0.1rem, 0.2vh, 0.2rem) 0;
+.col-group.col-peak .col-lbl {
+    color: var(--copper-dark);
+    font-weight: 700;
 }
 
-.fav-dot {
-    width: clamp(5px, 0.5vw, 7px);
-    height: clamp(5px, 0.5vw, 7px);
-    background: var(--copper);
-    border-radius: 50%;
-    opacity: 0;
-    animation: dotFadeIn 0.3s ease forwards;
-}
-
-.fav-dot.empty {
-    background: #2a2a2a;
-}
-
-@keyframes dotFadeIn {
-    to { opacity: 1; }
-}
-
-/* Sales label area */
-.sales-label-area {
+/* ─── Horizontal Bar Chart (Favorites) ─── */
+.fav-chart {
     display: flex;
     flex-direction: column;
-    gap: clamp(0.15rem, 0.25vh, 0.3rem);
+    gap: 8px;
+    margin-top: 10px;
 }
 
-.sales-percent {
-    font-family: var(--font-mono);
-    font-size: clamp(1.4rem, 2.5vw, 2.8rem);
+.fav-row {
+    display: grid;
+    grid-template-columns: 82px 1fr 36px;
+    align-items: center;
+    gap: 8px;
+}
+
+.fav-row-label {
+    font-size: 12px;
+    color: var(--text-muted);
     font-weight: 500;
-    color: var(--copper-light);
-    line-height: 1;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.fav-row.fav-active .fav-row-label {
+    color: var(--text-primary);
+    font-weight: 700;
+    font-size: 12px;
+}
+
+.fav-track {
+    height: 8px;
+    background: #ece8e2;
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.fav-fill {
+    height: 100%;
+    width: 0;
+    background: #d5cec6;
+    border-radius: 4px;
+    transition: width 0.9s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+.fav-row.fav-active .fav-fill {
+    background: linear-gradient(90deg, var(--copper-dark), var(--copper-light));
+}
+
+.fav-val {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--text-muted);
+    text-align: right;
+    white-space: nowrap;
+}
+
+.fav-row.fav-active .fav-val {
+    color: var(--copper-dark);
+    font-weight: 700;
+}
+
+/* ── Sales share ranked bar chart ── */
+.sales-vis {
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
+    border-radius: 14px;
+    padding: 20px 24px 18px;
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    box-shadow: var(--card-shadow);
+}
+
+.vis-header {
+    font-size: 11px;
+    color: var(--copper);
+    letter-spacing: 2.5px;
+    font-weight: 700;
+    text-transform: uppercase;
+    margin-bottom: 14px;
+}
+
+.vis-row {
+    display: grid;
+    grid-template-columns: 108px 1fr 46px;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 9px;
+}
+
+.vis-row:last-child { margin-bottom: 0; }
+
+.vis-name {
+    font-family: var(--font-body);
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--text-muted);
+    letter-spacing: 0.3px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.vis-row.vis-active .vis-name {
+    color: var(--text-primary);
+    font-weight: 700;
+    font-size: 13px;
+}
+
+.vis-bar-track {
+    height: 9px;
+    background: #ece8e2;
+    border-radius: 5px;
+    overflow: hidden;
+}
+
+.vis-bar {
+    height: 100%;
+    width: 0;
+    border-radius: 5px;
+    background: #d5cec6;
+    transition: width 1s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+.vis-row.vis-active .vis-bar {
+    background: linear-gradient(90deg, var(--copper-dark), var(--copper-light));
+}
+
+.vis-val {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--text-muted);
+    text-align: right;
+    white-space: nowrap;
+}
+
+.vis-row.vis-active .vis-val {
+    color: var(--copper-dark);
+    font-weight: 700;
+    font-size: 12px;
 }
 
 /* ============================================
-   NAV BUTTONS (on machine screen)
+   MACHINE SCREEN OVERLAY
+   Clean vertical list on black background
    ============================================ */
 
-.nav-btn {
+.machine-screen-overlay {
+    position: absolute;
+    left: var(--screen-left);
+    top: var(--screen-top);
+    width: var(--screen-w);
+    height: var(--screen-h);
+    background: transparent;
+    border-radius: 6px;
+    display: flex;
+    flex-direction: column;
+    z-index: 10;
+    overflow: hidden;
+}
+
+/* ── Touch hint (covers buttons until dismissed) ── */
+.screen-hint {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 2;
     cursor: pointer;
+    background: #000000;
+    transition: opacity 0.5s ease;
 }
 
-.nav-btn-bg {
-    fill: rgba(200, 169, 126, 0.08);
-    stroke: rgba(200, 169, 126, 0.25);
-    stroke-width: 1;
-    transition: fill 0.25s ease, stroke 0.25s ease;
-}
-
-.nav-btn:hover .nav-btn-bg {
-    fill: rgba(200, 169, 126, 0.2);
-    stroke: var(--copper);
-    stroke-width: 1.5;
-}
-
-.nav-btn-bg.active-nav {
-    fill: #c8a97e !important;
-    stroke: #d4b896 !important;
-    stroke-width: 1.5;
-}
-
-.nav-btn-text {
-    fill: #c8a97e;
+.screen-hint.hidden {
+    opacity: 0;
     pointer-events: none;
-    transition: fill 0.2s ease;
 }
 
-.nav-btn-bg.active-nav + .nav-btn-text {
-    fill: #1a1a2e !important;
+.hint-text {
+    color: rgba(255, 255, 255, 0.55);
+    font-family: var(--font-body);
+    font-size: 15px;
+    font-weight: 500;
+    text-align: center;
+    line-height: 1.7;
+    letter-spacing: 0.5px;
+}
+
+/* ── Vertical navigation list ── */
+.screen-nav-list {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    gap: 5px;
+    padding: 10px 8px 8px 14px;
+    justify-content: center;
+}
+
+.screen-btn {
+    background: #000000;
+    border: 2px solid #000000;
+    color: #ffffff;
+    font-family: var(--font-display);
+    font-size: 16px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    padding: 12px 18px;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: background 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+    text-align: left;
+    outline: none;
+    display: flex;
+    align-items: center;
+}
+
+.screen-btn:hover {
+    background: #222222;
+}
+
+.screen-btn.active {
+    background: #ffffff;
+    color: #000000;
+    border-color: #cccccc;
+    font-weight: 700;
 }
 
 /* ============================================
-   RESPONSIVE
+   DRIP ZONE
+   Espresso drip animation elements
    ============================================ */
 
-@media (max-width: 1024px) {
-    .app-layout {
-        grid-template-columns: 1fr minmax(220px, 34vw);
-    }
-    .drink-stats-grid {
-        gap: clamp(0.4rem, 0.8vw, 0.8rem);
-    }
+.drip-zone {
+    position: absolute;
+    left: var(--drip-left);
+    top: var(--drip-top);
+    width: var(--drip-w);
+    height: var(--drip-h);
+    pointer-events: none;
+    z-index: 6;
+    opacity: 0;
+    transition: opacity 0.3s ease;
 }
 
-@media (max-width: 850px) {
-    .app-layout {
-        grid-template-columns: 1fr minmax(200px, 30vw);
-    }
-    .left-column {
-        padding: 0.8rem 1rem;
-    }
+/* Two espresso streams side by side */
+.drip-stream {
+    position: absolute;
+    width: 4px;
+    height: 0;
+    border-radius: 2px;
+    opacity: 0;
 }
 
-@media (min-width: 1920px) {
-    .app-layout {
-        grid-template-columns: 1fr minmax(380px, 28vw);
-    }
-    .left-column {
-        padding: 2.5rem 4.5rem;
-    }
+#stream-left {
+    left: 16px;
+    top: 0;
+    background: linear-gradient(180deg,
+        #8b5230 0%,
+        #6b3a1f 30%,
+        rgba(107, 58, 31, 0.5) 75%,
+        rgba(107, 58, 31, 0.0) 100%);
+}
+#stream-right {
+    left: 28px;
+    top: 0;
+    background: linear-gradient(180deg,
+        #7a4825 0%,
+        #5c3317 30%,
+        rgba(92,  51, 23, 0.45) 75%,
+        rgba(92,  51, 23, 0.0) 100%);
 }
 
-@media (min-width: 2560px) {
-    .left-column {
-        padding: 3rem 6rem;
-    }
+/* Individual drops — teardrop shape */
+.drip-drop {
+    position: absolute;
+    width: 10px;
+    height: 13px;
+    background: radial-gradient(ellipse at 40% 30%, #9b6035, #5c3317 45%, #3e2009 100%);
+    border-radius: 46% 46% 54% 54% / 38% 38% 62% 62%;
+    opacity: 0;
+    filter: drop-shadow(0 2px 3px rgba(0,0,0,0.25));
 }
 
-@media (max-height: 680px) {
-    .stat-card {
-        padding: 0.6rem;
-    }
-    .stat-value {
-        font-size: clamp(1.3rem, 2.2vw, 2.2rem);
-    }
-    .drink-name {
-        font-size: clamp(1.6rem, 3vw, 3rem);
-    }
+.drip-l1, .drip-l2 { left: 13px; }
+.drip-r1, .drip-r2 { left: 25px; }
+
+/* Main drop fall */
+@keyframes dripFall {
+    0%   { top: 0px;   opacity: 0;    transform: scaleX(1)   scaleY(0.7); }
+    8%   { top: 4px;   opacity: 1;    transform: scaleX(0.85) scaleY(1.3); }
+    40%  { top: 50px;  opacity: 0.92; transform: scaleX(0.78) scaleY(1.55); }
+    75%  { top: 100px; opacity: 0.75; transform: scaleX(0.72) scaleY(1.7); }
+    95%  { top: 120px; opacity: 0.2;  transform: scaleX(1.1)  scaleY(0.5); }
+    100% { top: 122px; opacity: 0;    transform: scaleX(1.3)  scaleY(0.3); }
+}
+
+/* Secondary (delayed) drop falls slightly slower */
+@keyframes dripFallSlow {
+    0%   { top: 0px;   opacity: 0;    transform: scaleX(1)    scaleY(0.7); }
+    8%   { top: 3px;   opacity: 1;    transform: scaleX(0.88)  scaleY(1.25); }
+    40%  { top: 48px;  opacity: 0.88; transform: scaleX(0.8)   scaleY(1.5); }
+    75%  { top: 98px;  opacity: 0.7;  transform: scaleX(0.74)  scaleY(1.65); }
+    95%  { top: 119px; opacity: 0.18; transform: scaleX(1.08)  scaleY(0.5); }
+    100% { top: 122px; opacity: 0;    transform: scaleX(1.25)  scaleY(0.3); }
+}
+
+.drip-drop.dripping.drip-l1 { animation: dripFall     1.9s cubic-bezier(0.45, 0.05, 0.55, 0.95) infinite; }
+.drip-drop.dripping.drip-l2 { animation: dripFallSlow 2.6s cubic-bezier(0.45, 0.05, 0.55, 0.95) infinite 0.7s; }
+.drip-drop.dripping.drip-r1 { animation: dripFall     1.9s cubic-bezier(0.45, 0.05, 0.55, 0.95) infinite 0.3s; }
+.drip-drop.dripping.drip-r2 { animation: dripFallSlow 2.6s cubic-bezier(0.45, 0.05, 0.55, 0.95) infinite 1.1s; }
+
+/* ============================================
+   GLASS CUP
+   Clear espresso glass, positioned above ORANGE line
+   ============================================ */
+
+.glass-container {
+    position: absolute;
+    left: var(--cup-left);
+    top: var(--cup-top);
+    width: var(--cup-w);
+    opacity: 1;
+    z-index: 5;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    pointer-events: none;
+}
+
+.glass-cup-row {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.glass-body {
+    width: 140px;
+    height: 200px;
+    background: rgba(220, 230, 245, 0.35);
+    border-left:   2.5px solid rgba(200, 210, 230, 0.7);
+    border-right:  2.5px solid rgba(200, 210, 230, 0.5);
+    border-bottom: 2.5px solid rgba(200, 210, 230, 0.7);
+    border-top:    2px   solid rgba(230, 235, 250, 0.85);
+    border-radius: 4px 4px 10px 10px;
+    overflow: hidden;
+    position: relative;
+    box-shadow: inset 2px 0 16px rgba(255,255,255,0.12),
+                inset -2px 0 16px rgba(255,255,255,0.06),
+                0 6px 30px rgba(0,0,0,0.12);
+}
+
+.glass-liquid {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 0;
+    background: linear-gradient(180deg, #6b3a1f 0%, #5c3317 40%, #3e2009 100%);
+    transition: height 2.2s cubic-bezier(0.22, 0.61, 0.36, 1);
+}
+
+.glass-crema {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 7px;
+    background: linear-gradient(180deg, #e8b468 0%, #c8922e 60%, #a0701a 100%);
+    border-radius: 2px;
+    opacity: 0;
+    transition: opacity 0.6s ease;
+}
+
+.glass-shine {
+    position: absolute;
+    left: 8px;
+    top: 8px;
+    width: 8px;
+    height: 80px;
+    background: linear-gradient(180deg, rgba(255,255,255,0.22) 0%, rgba(255,255,255,0.04) 100%);
+    border-radius: 4px;
+    pointer-events: none;
+}
+
+.glass-shine-right {
+    position: absolute;
+    right: 10px;
+    top: 14px;
+    width: 4px;
+    height: 40px;
+    background: linear-gradient(180deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.02) 100%);
+    border-radius: 2px;
+    pointer-events: none;
+}
+
+.glass-foot {
+    width: 95px;
+    height: 6px;
+    background: rgba(190, 195, 220, 0.4);
+    border-radius: 0 0 3px 3px;
+    margin-top: 2px;
+}
+
+.glass-base-plate {
+    width: 120px;
+    height: 8px;
+    background: rgba(190, 195, 220, 0.28);
+    border-radius: 0 0 5px 5px;
+}
+
+/* ============================================
+   SALES SHARE KPI
+   Positioned to the right of the glass
+   ============================================ */
+
+.sales-kpi {
+    position: absolute;
+    left: 1440px;
+    top: 710px;
+    width: 200px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    z-index: 12;
+    opacity: 0;
+    transition: opacity 0.5s ease;
+    pointer-events: none;
+}
+
+.sales-kpi.visible {
+    opacity: 1;
+}
+
+.sales-kpi-label {
+    font-family: var(--font-body);
+    font-size: 11px;
+    color: var(--copper);
+    font-weight: 700;
+    letter-spacing: 2.5px;
+    text-transform: uppercase;
+    margin-bottom: 4px;
+}
+
+.sales-kpi-value {
+    font-family: var(--font-display);
+    font-size: 56px;
+    font-weight: 900;
+    color: var(--copper-dark);
+    line-height: 1;
+    text-shadow: 0 2px 8px rgba(0,0,0,0.08);
 }
 
 /* ============================================
@@ -491,9 +878,13 @@ html, body {
 
 ::selection {
     background: var(--copper);
-    color: var(--bg-dark);
+    color: #fff;
 }
 
-svg {
-    shape-rendering: geometricPrecision;
+/* Prevent text selection on interactive areas */
+.machine-screen-overlay,
+.drip-zone,
+.glass-container {
+    user-select: none;
+    -webkit-user-select: none;
 }

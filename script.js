@@ -1,6 +1,6 @@
 /* ============================================
    BREW LOGIC — Main Script
-   Navigation · Drip Animation · Glass Fill
+   Scene Scaling · Navigation · Drip Animation · Glass Fill
    ============================================ */
 
 (function () {
@@ -11,32 +11,122 @@
     let isTransitioning = false;
     let animTimers = [];
 
-    /* ── Placeholder drink data (plug in real data next prompt) ── */
+    /* ── Drink data ── */
     const drinkData = {
-        latte:      { salesPercent: 21.3, age: '28', time: 'Afternoon', timePeriod: 'Afternoon', fav: '142' },
-        cappuccino: { salesPercent: 18.7, age: '31', time: 'Afternoon', timePeriod: 'Afternoon', fav: '98' },
-        americano:  { salesPercent: 22.1, age: '34', time: 'Morning',   timePeriod: 'Morning',   fav: '156' },
-        cortado:    { salesPercent: 15.4, age: '30', time: 'Afternoon', timePeriod: 'Afternoon', fav: '67' },
-        espresso:   { salesPercent: 10.2, age: '36', time: 'Afternoon', timePeriod: 'Afternoon', fav: '53' }
+        latte: {
+            salesPercent: 21.3,
+            avgAge: 28,
+            ageDist: [
+                { bin: '18–24', count: 52 },
+                { bin: '25–34', count: 84 },
+                { bin: '35–44', count: 38 },
+                { bin: '45–54', count: 19 },
+                { bin: '55+',   count:  8 }
+            ],
+            timeDist: { Morning: 45, Afternoon: 72, Evening: 25 },
+            favCount: 142
+        },
+        cappuccino: {
+            salesPercent: 18.7,
+            avgAge: 31,
+            ageDist: [
+                { bin: '18–24', count: 22 },
+                { bin: '25–34', count: 68 },
+                { bin: '35–44', count: 58 },
+                { bin: '45–54', count: 28 },
+                { bin: '55+',   count: 12 }
+            ],
+            timeDist: { Morning: 58, Afternoon: 48, Evening: 22 },
+            favCount: 98
+        },
+        americano: {
+            salesPercent: 22.1,
+            avgAge: 34,
+            ageDist: [
+                { bin: '18–24', count: 18 },
+                { bin: '25–34', count: 55 },
+                { bin: '35–44', count: 74 },
+                { bin: '45–54', count: 42 },
+                { bin: '55+',   count: 22 }
+            ],
+            timeDist: { Morning: 88, Afternoon: 42, Evening: 26 },
+            favCount: 156
+        },
+        cortado: {
+            salesPercent: 15.4,
+            avgAge: 30,
+            ageDist: [
+                { bin: '18–24', count: 28 },
+                { bin: '25–34', count: 76 },
+                { bin: '35–44', count: 44 },
+                { bin: '45–54', count: 18 },
+                { bin: '55+',   count:  6 }
+            ],
+            timeDist: { Morning: 28, Afternoon: 52, Evening: 19 },
+            favCount: 67
+        },
+        espresso: {
+            salesPercent: 10.2,
+            avgAge: 36,
+            ageDist: [
+                { bin: '18–24', count: 12 },
+                { bin: '25–34', count: 44 },
+                { bin: '35–44', count: 68 },
+                { bin: '45–54', count: 52 },
+                { bin: '55+',   count: 24 }
+            ],
+            timeDist: { Morning: 41, Afternoon: 48, Evening: 22 },
+            favCount: 53
+        }
     };
+
+    /* ── Glass body height in CSS px (must match .glass-body height) ── */
+    const GLASS_BODY_HEIGHT = 200;
 
     /* ============================================
        INIT
        ============================================ */
     document.addEventListener('DOMContentLoaded', () => {
+        scaleScene();
+        window.addEventListener('resize', scaleScene);
         initNavigation();
         initDrinkCards();
+        initScreenHint();
         populateAllDrinks();
     });
 
     /* ============================================
-       1. NAVIGATION
+       0. SCENE SCALING
+       Uniformly scales the 1920×1080 scene to
+       FIT (contain) inside the browser viewport.
+       White letterbox fills any remaining space.
+       ============================================ */
+    function scaleScene() {
+        const scene = document.getElementById('scene');
+        if (!scene) return;
+
+        const vw = window.innerWidth;
+        const vh = window.innerHeight;
+        const scaleX = vw / 1920;
+        const scaleY = vh / 1080;
+        const scale = Math.min(scaleX, scaleY);           // contain — nothing cropped
+
+        const scaledW = 1920 * scale;
+        const scaledH = 1080 * scale;
+        const offsetX = (vw - scaledW) / 2;
+        const offsetY = (vh - scaledH) / 2;
+
+        scene.style.transform = 'translate(' + offsetX + 'px,' + offsetY + 'px) scale(' + scale + ')';
+    }
+
+    /* ============================================
+       1. NAVIGATION — screen buttons
        ============================================ */
     function initNavigation() {
-        document.querySelectorAll('.nav-btn').forEach(btn => {
-            btn.addEventListener('click', e => {
+        document.querySelectorAll('.screen-btn').forEach(function (btn) {
+            btn.addEventListener('click', function (e) {
                 e.stopPropagation();
-                const target = btn.getAttribute('data-target');
+                var target = btn.getAttribute('data-target');
                 if (target && target !== currentPanel && !isTransitioning) {
                     navigateTo(target);
                 }
@@ -44,10 +134,11 @@
         });
     }
 
+    /* ── Drink cards on home panel ── */
     function initDrinkCards() {
-        document.querySelectorAll('.drink-card').forEach(card => {
-            card.addEventListener('click', () => {
-                const drink = card.getAttribute('data-drink');
+        document.querySelectorAll('.drink-card').forEach(function (card) {
+            card.addEventListener('click', function () {
+                var drink = card.getAttribute('data-drink');
                 if (drink && drink !== currentPanel && !isTransitioning) {
                     navigateTo(drink);
                 }
@@ -55,54 +146,231 @@
         });
     }
 
+    /* ── Navigate between panels ── */
     function navigateTo(target) {
         if (isTransitioning || target === currentPanel) return;
         isTransitioning = true;
 
-        const oldPanel = document.getElementById('panel-' + currentPanel);
-        const newPanel = document.getElementById('panel-' + target);
+        var oldPanel = document.getElementById('panel-' + currentPanel);
+        var newPanel = document.getElementById('panel-' + target);
         if (!oldPanel || !newPanel) { isTransitioning = false; return; }
 
-        /* Stop any running pour animation */
+        /* Stop running pour animation */
         cancelAnimTimers();
         resetGlass();
+        hideSalesKPI();
 
-        /* Animate out */
+        /* Animate old panel out */
         oldPanel.classList.add('leaving');
         oldPanel.classList.remove('active');
 
-        /* After out-transition, animate in */
-        setTimeout(() => {
+        /* After out-transition, animate new panel in */
+        setTimeout(function () {
             oldPanel.classList.remove('leaving');
             newPanel.classList.add('active');
             updateNavHighlight(target);
             currentPanel = target;
 
-            /* Start pour if drink section */
             if (target !== 'home') {
-                showGlass();
                 startPourAnimation(target);
-                updateScreenLabels(target);
+                renderDrinkCharts(target);
+                showSalesKPI(target);
             } else {
-                hideGlass();
-                clearScreenLabels();
+                hideSalesKPI();
             }
 
-            setTimeout(() => { isTransitioning = false; }, 500);
+            setTimeout(function () { isTransitioning = false; }, 500);
         }, 450);
     }
 
+    /* ============================================
+       SALES SHARE KPI — right of the glass
+       ============================================ */
+    function showSalesKPI(drink) {
+        var kpi = document.getElementById('sales-kpi');
+        var val = document.getElementById('sales-kpi-value');
+        if (!kpi || !val) return;
+        var data = drinkData[drink];
+        if (data) {
+            val.textContent = data.salesPercent.toFixed(1) + '%';
+        }
+        kpi.classList.add('visible');
+    }
+
+    function hideSalesKPI() {
+        var kpi = document.getElementById('sales-kpi');
+        if (kpi) kpi.classList.remove('visible');
+    }
+
+    /* ============================================
+       3. THREE DATA VISUALISATIONS
+       Histogram · Column Chart · Horizontal Bar
+       ============================================ */
+    function renderDrinkCharts(drink) {
+        var data = drinkData[drink];
+        if (!data) return;
+        renderAgeHistogram(drink, data);
+        renderTimeColumnChart(drink, data);
+        renderFavHBarChart(drink, data);
+    }
+
+    function ageBinIndex(avg) {
+        if (avg < 25) return 0;
+        if (avg < 35) return 1;
+        if (avg < 45) return 2;
+        if (avg < 55) return 3;
+        return 4;
+    }
+
+    /* KPI + histogram of age distribution */
+    function renderAgeHistogram(drink, data) {
+        var el = document.getElementById(drink + '-chart-age');
+        if (!el) return;
+        var max     = Math.max.apply(null, data.ageDist.map(function (d) { return d.count; }));
+        var peakIdx = ageBinIndex(data.avgAge);
+
+        var html = '<div class="stat-label">Avg. Age of Buyer</div>';
+        html += '<div class="kpi-num">' + data.avgAge + '<span class="kpi-unit">yrs</span></div>';
+        html += '<div class="hist-chart">';
+        data.ageDist.forEach(function (d, i) {
+            var pct = (d.count / max * 100).toFixed(1);
+            var cls = i === peakIdx ? ' hist-peak' : '';
+            html += '<div class="hist-col' + cls + '">';
+            html += '<div class="hist-bar" style="height:0" data-h="' + pct + '%"></div>';
+            html += '<span class="hist-lbl">' + d.bin + '</span>';
+            html += '</div>';
+        });
+        html += '</div>';
+        el.innerHTML = html;
+
+        setTimeout(function () {
+            el.querySelectorAll('.hist-bar').forEach(function (bar) {
+                bar.style.height = bar.getAttribute('data-h');
+            });
+        }, 100);
+    }
+
+    /* Vertical column chart of purchase counts by time of day */
+    function renderTimeColumnChart(drink, data) {
+        var el = document.getElementById(drink + '-chart-time');
+        if (!el) return;
+        var periods = ['Morning', 'Afternoon', 'Evening'];
+        var labels  = ['AM', 'PM', 'EVE'];
+        var vals    = periods.map(function (p) { return data.timeDist[p] || 0; });
+        var max     = Math.max.apply(null, vals);
+        var peakP   = periods[vals.indexOf(max)];
+
+        var html = '<div class="stat-label">Purchases by Time</div>';
+        html += '<div class="col-chart">';
+        periods.forEach(function (p, i) {
+            var pct = (vals[i] / max * 100).toFixed(1);
+            var cls = p === peakP ? ' col-peak' : '';
+            html += '<div class="col-group' + cls + '">';
+            html += '<div class="col-bar-wrap"><div class="col-bar" style="height:0" data-h="' + pct + '%"></div></div>';
+            html += '<span class="col-lbl">' + labels[i] + '</span>';
+            html += '</div>';
+        });
+        html += '</div>';
+        el.innerHTML = html;
+
+        setTimeout(function () {
+            el.querySelectorAll('.col-bar').forEach(function (bar) {
+                bar.style.height = bar.getAttribute('data-h');
+            });
+        }, 100);
+    }
+
+    /* Horizontal ranked bar chart of survey favorites */
+    function renderFavHBarChart(drink, data) {
+        var el = document.getElementById(drink + '-chart-fav');
+        if (!el) return;
+        var maxFav = Math.max.apply(null, Object.keys(drinkData).map(function (k) { return drinkData[k].favCount; }));
+        var sorted = Object.keys(drinkData).slice().sort(function (a, b) {
+            return drinkData[b].favCount - drinkData[a].favCount;
+        });
+
+        var html = '<div class="stat-label">Reported as Favorite</div>';
+        html += '<div class="fav-chart">';
+        sorted.forEach(function (d) {
+            var count = drinkData[d].favCount;
+            var pct   = (count / maxFav * 100).toFixed(1);
+            var label = d.charAt(0).toUpperCase() + d.slice(1);
+            var cls   = d === drink ? ' fav-active' : '';
+            html += '<div class="fav-row' + cls + '">';
+            html += '<span class="fav-row-label">' + label + '</span>';
+            html += '<div class="fav-track"><div class="fav-fill" style="width:0" data-w="' + pct + '%"></div></div>';
+            html += '<span class="fav-val">' + count + '</span>';
+            html += '</div>';
+        });
+        html += '</div>';
+        el.innerHTML = html;
+
+        setTimeout(function () {
+            el.querySelectorAll('.fav-fill').forEach(function (fill) {
+                fill.style.width = fill.getAttribute('data-w');
+            });
+        }, 100);
+    }
+
+    /* ============================================
+       4. RANKED SALES SHARE BAR CHART
+       Renders animated horizontal bars for all drinks
+       with the active drink highlighted in copper.
+       ============================================ */
+    function renderSalesChart(activeDrink) {
+        var container = document.getElementById(activeDrink + '-sales-vis');
+        if (!container) return;
+
+        var allPcts = Object.keys(drinkData).map(function (k) { return drinkData[k].salesPercent; });
+        var maxPct  = Math.max.apply(null, allPcts);
+
+        /* Sort all drinks highest → lowest for ranking view */
+        var sorted = Object.keys(drinkData).slice().sort(function (a, b) {
+            return drinkData[b].salesPercent - drinkData[a].salesPercent;
+        });
+
+        var html = '<div class="vis-header">Sales Share vs. All Drinks</div>';
+        sorted.forEach(function (drink) {
+            var pct   = drinkData[drink].salesPercent;
+            var barW  = ((pct / maxPct) * 100).toFixed(2);
+            var label = drink.charAt(0).toUpperCase() + drink.slice(1);
+            var cls   = drink === activeDrink ? ' vis-active' : '';
+            html += '<div class="vis-row' + cls + '" data-bar-w="' + barW + '">';
+            html += '<span class="vis-name">' + label + '</span>';
+            html += '<div class="vis-bar-track"><div class="vis-bar" style="width:0"></div></div>';
+            html += '<span class="vis-val">' + pct.toFixed(1) + '%</span>';
+            html += '</div>';
+        });
+        container.innerHTML = html;
+
+        /* Animate bars in after paint */
+        setTimeout(function () {
+            container.querySelectorAll('.vis-row').forEach(function (row) {
+                var bar = row.querySelector('.vis-bar');
+                if (bar) bar.style.width = row.getAttribute('data-bar-w') + '%';
+            });
+        }, 80);
+    }
+
+    /* ── Screen hint — dismiss on first interaction ── */
+    function initScreenHint() {
+        var hint = document.getElementById('screen-hint');
+        if (!hint) return;
+
+        hint.addEventListener('click', function (e) {
+            e.stopPropagation();
+            hint.classList.add('hidden');
+        }, { once: true });
+    }
+
+    /* ── Highlight active screen button ── */
     function updateNavHighlight(active) {
-        document.querySelectorAll('.nav-btn').forEach(btn => {
-            const bg = btn.querySelector('.nav-btn-bg');
-            const txt = btn.querySelector('.nav-btn-text');
-            const t = btn.getAttribute('data-target');
+        document.querySelectorAll('.screen-btn').forEach(function (btn) {
+            var t = btn.getAttribute('data-target');
             if (t === active) {
-                bg.classList.add('active-nav');
-                if (txt) { txt.setAttribute('fill', '#1a1a2e'); txt.setAttribute('font-weight', '600'); }
+                btn.classList.add('active');
             } else {
-                bg.classList.remove('active-nav');
-                if (txt) { txt.setAttribute('fill', '#c8a97e'); txt.setAttribute('font-weight', '500'); }
+                btn.classList.remove('active');
             }
         });
     }
@@ -111,180 +379,147 @@
        2. SCREEN LABELS
        ============================================ */
     function updateScreenLabels(drink) {
-        const data = drinkData[drink];
-        const nameEl = document.getElementById('screen-drink-label');
-        const pctEl = document.getElementById('screen-pct-label');
+        var data = drinkData[drink];
+        var nameEl = document.getElementById('screen-drink-label');
+        var pctEl  = document.getElementById('screen-pct-label');
         if (nameEl) {
             nameEl.textContent = drink.charAt(0).toUpperCase() + drink.slice(1);
-            nameEl.setAttribute('opacity', '1');
+            nameEl.style.opacity = '1';
         }
         if (pctEl && data) {
             pctEl.textContent = data.salesPercent.toFixed(1) + '% of sales';
-            pctEl.setAttribute('opacity', '1');
+            pctEl.style.opacity = '1';
         }
     }
 
     function clearScreenLabels() {
-        const nameEl = document.getElementById('screen-drink-label');
-        const pctEl = document.getElementById('screen-pct-label');
-        if (nameEl) nameEl.setAttribute('opacity', '0');
-        if (pctEl) pctEl.setAttribute('opacity', '0');
+        var nameEl = document.getElementById('screen-drink-label');
+        var pctEl  = document.getElementById('screen-pct-label');
+        if (nameEl) nameEl.style.opacity = '0';
+        if (pctEl)  pctEl.style.opacity  = '0';
     }
 
     /* ============================================
-       3. GLASS SHOW / HIDE
+       3. GLASS SHOW / HIDE / RESET
        ============================================ */
     function showGlass() {
-        const glass = document.getElementById('glass-group');
-        if (glass) {
-            glass.style.transition = 'opacity 0.4s ease';
-            glass.setAttribute('opacity', '1');
-        }
+        var glass = document.getElementById('glass-group');
+        if (glass) glass.style.opacity = '1';
     }
 
     function hideGlass() {
-        const glass = document.getElementById('glass-group');
-        if (glass) {
-            glass.style.transition = 'opacity 0.3s ease';
-            glass.setAttribute('opacity', '0');
-        }
+        var glass = document.getElementById('glass-group');
+        if (glass) glass.style.opacity = '0';
     }
 
     function resetGlass() {
-        const liquidFill = document.getElementById('liquid-fill');
-        const liquidSurface = document.getElementById('liquid-surface');
-        const glassPct = document.getElementById('glass-pct-text');
-        const streamL = document.getElementById('stream-left');
-        const streamR = document.getElementById('stream-right');
-        const dripGroup = document.getElementById('drip-group');
+        var liquidFill    = document.getElementById('liquid-fill');
+        var liquidSurface = document.getElementById('liquid-surface');
+        var streamL       = document.getElementById('stream-left');
+        var streamR       = document.getElementById('stream-right');
 
-        if (liquidFill) { liquidFill.setAttribute('y', '588'); liquidFill.setAttribute('height', '0'); liquidFill.style.transition = 'none'; }
-        if (liquidSurface) { liquidSurface.setAttribute('y', '588'); liquidSurface.setAttribute('opacity', '0'); liquidSurface.style.transition = 'none'; }
-        if (glassPct) { glassPct.setAttribute('opacity', '0'); }
-        if (streamL) { streamL.setAttribute('height', '0'); streamL.setAttribute('opacity', '0'); streamL.style.transition = 'none'; }
-        if (streamR) { streamR.setAttribute('height', '0'); streamR.setAttribute('opacity', '0'); streamR.style.transition = 'none'; }
-        if (dripGroup) { dripGroup.setAttribute('opacity', '0'); }
+        if (liquidFill)    { liquidFill.style.transition = 'none';    liquidFill.style.height = '0'; }
+        if (liquidSurface) { liquidSurface.style.transition = 'none'; liquidSurface.style.opacity = '0'; }
+        if (streamL)       { streamL.style.transition = 'none'; streamL.style.height = '0'; streamL.style.opacity = '0'; }
+        if (streamR)       { streamR.style.transition = 'none'; streamR.style.height = '0'; streamR.style.opacity = '0'; }
 
-        // Reset drip drops
-        document.querySelectorAll('.drip-drop').forEach(d => {
-            d.style.animation = 'none';
-            d.setAttribute('opacity', '0');
-        });
+        stopDripDrops();
+
+        var dripGroup = document.getElementById('drip-group');
+        if (dripGroup) dripGroup.style.opacity = '0';
     }
 
     /* ============================================
-       4. POUR ANIMATION (Drip + Glass Fill)
+       4. POUR ANIMATION — Drip + Glass Fill
        ============================================ */
     function cancelAnimTimers() {
-        animTimers.forEach(t => clearTimeout(t));
+        animTimers.forEach(function (t) { clearTimeout(t); });
         animTimers = [];
     }
 
     function startPourAnimation(drink) {
-        const data = drinkData[drink];
+        var data = drinkData[drink];
         if (!data) return;
 
-        const fillPercent = data.salesPercent;
-        /* Glass interior: y ranges from ~534 (top) to ~588 (bottom) = 54px total */
-        const glassInnerHeight = 54;
-        const fillHeight = (fillPercent / 100) * glassInnerHeight;
-        const fillY = 588 - fillHeight;
+        var fillPercent = data.salesPercent;
+        var fillHeight  = (fillPercent / 100) * GLASS_BODY_HEIGHT;
 
-        const dripGroup = document.getElementById('drip-group');
-        const streamL = document.getElementById('stream-left');
-        const streamR = document.getElementById('stream-right');
-        const liquidFill = document.getElementById('liquid-fill');
-        const liquidSurface = document.getElementById('liquid-surface');
-        const glassPct = document.getElementById('glass-pct-text');
-        const dripsL1 = document.querySelector('.drip-l1');
-        const dripsL2 = document.querySelector('.drip-l2');
-        const dripsR1 = document.querySelector('.drip-r1');
-        const dripsR2 = document.querySelector('.drip-r2');
+        var dripGroup    = document.getElementById('drip-group');
+        var streamL      = document.getElementById('stream-left');
+        var streamR      = document.getElementById('stream-right');
+        var liquidFill   = document.getElementById('liquid-fill');
+        var liquidSurface = document.getElementById('liquid-surface');
 
         /* Phase 0: Show drip group */
-        if (dripGroup) dripGroup.setAttribute('opacity', '1');
+        if (dripGroup) dripGroup.style.opacity = '1';
 
-        /* Phase 1 (0ms): Start thin streams growing down from spouts */
-        animTimers.push(setTimeout(() => {
+        /* Phase 1 (100ms): Start thin streams */
+        animTimers.push(setTimeout(function () {
             if (streamL) {
-                streamL.style.transition = 'height 0.5s ease-out, opacity 0.3s ease';
-                streamL.setAttribute('opacity', '0.85');
-                streamL.setAttribute('height', '14');
+                streamL.style.transition = 'height 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94), opacity 0.4s ease';
+                streamL.style.opacity = '0.9';
+                streamL.style.height  = '118px';
             }
             if (streamR) {
-                streamR.style.transition = 'height 0.5s ease-out, opacity 0.3s ease';
-                streamR.setAttribute('opacity', '0.85');
-                streamR.setAttribute('height', '14');
+                streamR.style.transition = 'height 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94), opacity 0.4s ease';
+                streamR.style.opacity = '0.85';
+                streamR.style.height  = '118px';
             }
         }, 100));
 
-        /* Phase 2 (300ms): Start drip drops falling */
-        animTimers.push(setTimeout(() => {
-            startDripDrops(dripsL1, dripsL2, dripsR1, dripsR2);
+        /* Phase 2 (300ms): Start drip drops */
+        animTimers.push(setTimeout(function () {
+            startDripDrops();
         }, 300));
 
         /* Phase 3 (700ms): Begin filling the glass */
-        const fillDuration = 2200;
-        animTimers.push(setTimeout(() => {
+        var fillDuration = 2200;
+        animTimers.push(setTimeout(function () {
             if (liquidFill) {
-                liquidFill.style.transition = `y ${fillDuration}ms cubic-bezier(0.22, 0.61, 0.36, 1), height ${fillDuration}ms cubic-bezier(0.22, 0.61, 0.36, 1)`;
-                liquidFill.setAttribute('y', String(fillY));
-                liquidFill.setAttribute('height', String(fillHeight));
+                liquidFill.style.transition = 'height ' + fillDuration + 'ms cubic-bezier(0.22, 0.61, 0.36, 1)';
+                liquidFill.style.height = fillHeight + 'px';
             }
         }, 700));
 
-        /* Phase 4 (fill done): Show crema / surface, stop drips */
-        animTimers.push(setTimeout(() => {
+        /* Phase 4 (fill done): Stop drips, show crema + percentage */
+        animTimers.push(setTimeout(function () {
             /* Stop streams */
             if (streamL) {
                 streamL.style.transition = 'height 0.4s ease-in, opacity 0.4s ease';
-                streamL.setAttribute('height', '0');
-                streamL.setAttribute('opacity', '0');
+                streamL.style.height  = '0';
+                streamL.style.opacity = '0';
             }
             if (streamR) {
                 streamR.style.transition = 'height 0.4s ease-in, opacity 0.4s ease';
-                streamR.setAttribute('height', '0');
-                streamR.setAttribute('opacity', '0');
+                streamR.style.height  = '0';
+                streamR.style.opacity = '0';
             }
 
-            /* Stop drip drops */
-            stopDripDrops(dripsL1, dripsL2, dripsR1, dripsR2);
+            stopDripDrops();
 
-            /* Show crema surface */
+            /* Show crema */
             if (liquidSurface) {
-                liquidSurface.style.transition = 'y 0.3s ease, opacity 0.5s ease';
-                liquidSurface.setAttribute('y', String(fillY - 1));
-                liquidSurface.setAttribute('opacity', '0.9');
-            }
-
-            /* Show percentage text */
-            if (glassPct) {
-                glassPct.textContent = fillPercent.toFixed(1) + '%';
-                glassPct.style.transition = 'opacity 0.5s ease';
-                glassPct.setAttribute('opacity', '1');
+                liquidSurface.style.transition = 'opacity 0.5s ease';
+                liquidSurface.style.opacity = '0.9';
             }
         }, 700 + fillDuration + 200));
     }
 
-    /* ── Drip drop animation (CSS keyframes via JS) ── */
-    function startDripDrops(l1, l2, r1, r2) {
-        const animateDropLeft = `dripFallLeft 0.7s ease-in infinite`;
-        const animateDropRight = `dripFallRight 0.7s ease-in infinite`;
-        const animateDropLeftSlow = `dripFallLeft 0.9s ease-in infinite 0.3s`;
-        const animateDropRightSlow = `dripFallRight 0.9s ease-in infinite 0.35s`;
-
-        if (l1) { l1.style.animation = animateDropLeft; }
-        if (l2) { l2.style.animation = animateDropLeftSlow; }
-        if (r1) { r1.style.animation = animateDropRight; }
-        if (r2) { r2.style.animation = animateDropRightSlow; }
+    /* ── Drip drops (CSS animation toggle) ── */
+    function startDripDrops() {
+        document.querySelectorAll('.drip-drop').forEach(function (d) {
+            d.classList.add('dripping');
+        });
     }
 
-    function stopDripDrops(l1, l2, r1, r2) {
-        [l1, l2, r1, r2].forEach(d => {
-            if (d) {
-                d.style.animation = 'none';
-                d.setAttribute('opacity', '0');
-            }
+    function stopDripDrops() {
+        document.querySelectorAll('.drip-drop').forEach(function (d) {
+            d.classList.remove('dripping');
+            d.style.animation = 'none';
+            d.style.opacity = '0';
+            /* Force reflow so animation can restart later */
+            void d.offsetWidth;
+            d.style.animation = '';
         });
     }
 
@@ -292,96 +527,22 @@
        5. POPULATE DATA INTO PANELS
        ============================================ */
     function populateAllDrinks() {
-        Object.keys(drinkData).forEach(drink => {
+        Object.keys(drinkData).forEach(function (drink) {
             populateDrinkPanel(drink, drinkData[drink]);
         });
     }
 
-    function populateDrinkPanel(drink, data) {
-        /* Age */
-        const ageEl = document.getElementById(drink + '-age');
-        if (ageEl) ageEl.textContent = data.age;
-
-        const ageBar = document.getElementById(drink + '-age-bar');
-        if (ageBar) {
-            const ageNum = parseFloat(data.age);
-            if (!isNaN(ageNum)) {
-                const pct = ((ageNum - 18) / (65 - 18)) * 100;
-                setTimeout(() => { ageBar.style.width = Math.min(100, Math.max(0, pct)) + '%'; }, 600);
-            }
-        }
-
-        /* Time */
-        const timeEl = document.getElementById(drink + '-time');
-        if (timeEl) timeEl.textContent = data.time;
-
-        const timeChart = document.getElementById(drink + '-time-chart');
-        if (timeChart) {
-            timeChart.querySelectorAll('.time-block').forEach(b => {
-                b.classList.remove('peak');
-                if (b.getAttribute('data-period') === data.timePeriod) {
-                    b.classList.add('peak');
-                }
-            });
-        }
-
-        /* Favorite */
-        const favEl = document.getElementById(drink + '-fav');
-        if (favEl) favEl.textContent = data.fav;
-
-        const dotsContainer = document.getElementById(drink + '-dots');
-        if (dotsContainer) {
-            dotsContainer.innerHTML = '';
-            const favNum = parseInt(data.fav, 10);
-            if (!isNaN(favNum)) {
-                const maxDots = 20;
-                const filled = Math.min(maxDots, Math.max(1, Math.round((favNum / 200) * maxDots)));
-                for (let i = 0; i < maxDots; i++) {
-                    const dot = document.createElement('div');
-                    dot.className = 'fav-dot' + (i < filled ? '' : ' empty');
-                    dot.style.animationDelay = (i * 0.04) + 's';
-                    dotsContainer.appendChild(dot);
-                }
-            }
-        }
-
-        /* Sales percent */
-        const salesEl = document.getElementById(drink + '-sales-pct');
-        if (salesEl) salesEl.textContent = data.salesPercent.toFixed(1) + '%';
-    }
+    function populateDrinkPanel(drink, data) { /* chart rendering now handled by renderDrinkCharts() */ }
 
     /* ============================================
-       6. INJECT DRIP KEYFRAMES
-       ============================================ */
-    function injectKeyframes() {
-        const style = document.createElement('style');
-        style.textContent = `
-            @keyframes dripFallLeft {
-                0%   { cy: 520; opacity: 0; ry: 2; }
-                8%   { opacity: 0.9; ry: 2.8; }
-                80%  { opacity: 0.7; ry: 3.5; }
-                100% { cy: 536; opacity: 0; ry: 1.5; }
-            }
-            @keyframes dripFallRight {
-                0%   { cy: 520; opacity: 0; ry: 2; }
-                10%  { opacity: 0.9; ry: 2.8; }
-                82%  { opacity: 0.7; ry: 3.5; }
-                100% { cy: 536; opacity: 0; ry: 1.5; }
-            }
-        `;
-        document.head.appendChild(style);
-    }
-
-    injectKeyframes();
-
-    /* ============================================
-       7. PUBLIC API
+       6. PUBLIC API
        ============================================ */
     window.BrewLogic = {
-        navigateTo,
-        drinkData,
-        populateDrinkPanel,
-        populateAllDrinks
+        navigateTo: navigateTo,
+        drinkData: drinkData,
+        populateDrinkPanel: populateDrinkPanel,
+        populateAllDrinks: populateAllDrinks,
+        scaleScene: scaleScene
     };
 
 })();
