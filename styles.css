@@ -291,11 +291,14 @@ html, body {
     backdrop-filter: blur(12px);
     -webkit-backdrop-filter: blur(12px);
     box-shadow: var(--card-shadow);
-    transition: border-color 0.3s ease;
+    transition: border-color 0.3s ease, transform 0.2s ease, box-shadow 0.2s ease;
+    cursor: pointer;
 }
 
 .stat-card:hover {
-    border-color: rgba(184, 149, 106, 0.3);
+    border-color: rgba(184, 149, 106, 0.5);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
 }
 
 .stat-label {
@@ -404,6 +407,19 @@ html, body {
 
 .col-group.col-peak .col-bar {
     background: linear-gradient(180deg, var(--copper-light) 0%, var(--copper-dark) 100%);
+}
+
+.col-val {
+    font-family: var(--font-display);
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--text-muted);
+    line-height: 1;
+    margin-bottom: 4px;
+}
+
+.col-group.col-peak .col-val {
+    color: var(--copper-dark);
 }
 
 .col-lbl {
@@ -870,6 +886,128 @@ html, body {
     color: var(--copper-dark);
     line-height: 1;
     text-shadow: 0 2px 8px rgba(0,0,0,0.08);
+}
+
+/* ============================================
+   EXPANDED CARD OVERLAY
+   Shown when a stat card is clicked; dismissed on mouseleave
+   ============================================ */
+
+.expanded-card-overlay {
+    position: absolute;
+    left: 20px;
+    top: 400px;
+    width: 920px;
+    background: rgba(255, 255, 255, 0.97);
+    border: 1.5px solid rgba(184, 149, 106, 0.45);
+    border-radius: 20px;
+    padding: 44px 52px 48px;
+    z-index: 60;
+    box-shadow: 0 20px 70px rgba(0, 0, 0, 0.2), 0 4px 16px rgba(0, 0, 0, 0.08);
+    backdrop-filter: blur(24px);
+    -webkit-backdrop-filter: blur(24px);
+    opacity: 0;
+    transform: scale(0.95) translateY(12px);
+    transition: opacity 0.22s ease, transform 0.22s ease;
+    pointer-events: none;
+    display: none;
+}
+
+.expanded-card-overlay.visible {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+    pointer-events: auto;
+}
+
+/* ── Interior typography overrides ── */
+.expanded-card-overlay .stat-label {
+    font-size: 15px;
+    letter-spacing: 2.5px;
+    margin-bottom: 6px;
+}
+
+.expanded-card-overlay .kpi-num {
+    font-size: 88px;
+    margin: 4px 0 10px;
+}
+
+.expanded-card-overlay .kpi-unit {
+    font-size: 24px;
+}
+
+/* ── Expanded histogram ── */
+.expanded-card-overlay .hist-chart {
+    height: 220px;
+    gap: 10px;
+    margin-top: 10px;
+}
+
+.expanded-card-overlay .hist-col {
+    gap: 8px;
+}
+
+.expanded-card-overlay .hist-lbl {
+    font-size: 14px;
+}
+
+/* ── Expanded time chart ── */
+.expanded-card-overlay .col-chart {
+    height: 240px;
+    gap: 28px;
+    margin-top: 14px;
+}
+
+.expanded-card-overlay .col-lbl {
+    font-size: 15px;
+    letter-spacing: 1.5px;
+}
+
+/* ── Expanded favorites chart ── */
+.expanded-card-overlay .fav-chart {
+    gap: 16px;
+    margin-top: 14px;
+}
+
+.expanded-card-overlay .fav-row {
+    grid-template-columns: 130px 1fr 52px;
+    gap: 14px;
+}
+
+.expanded-card-overlay .fav-row-label {
+    font-size: 17px;
+}
+
+.expanded-card-overlay .fav-row.fav-active .fav-row-label {
+    font-size: 17px;
+}
+
+.expanded-card-overlay .fav-track {
+    height: 16px;
+    border-radius: 8px;
+}
+
+.expanded-card-overlay .fav-fill {
+    border-radius: 8px;
+}
+
+.expanded-card-overlay .fav-val {
+    font-size: 15px;
+}
+
+.expanded-card-overlay .fav-row.fav-active .fav-val {
+    font-size: 15px;
+}
+
+/* ── Close hint ── */
+.expanded-close-hint {
+    position: absolute;
+    top: 18px;
+    right: 24px;
+    font-size: 11px;
+    color: var(--text-muted);
+    letter-spacing: 1px;
+    font-weight: 500;
+    pointer-events: none;
 }
 
 /* ============================================

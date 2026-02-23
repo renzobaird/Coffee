@@ -93,6 +93,7 @@
         initDrinkCards();
         initScreenHint();
         populateAllDrinks();
+        initExpandedCards();
     });
 
     /* ============================================
@@ -266,6 +267,7 @@
             var pct = (vals[i] / max * 100).toFixed(1);
             var cls = p === peakP ? ' col-peak' : '';
             html += '<div class="col-group' + cls + '">';
+            html += '<span class="col-val">' + vals[i] + '</span>';
             html += '<div class="col-bar-wrap"><div class="col-bar" style="height:0" data-h="' + pct + '%"></div></div>';
             html += '<span class="col-lbl">' + labels[i] + '</span>';
             html += '</div>';
@@ -350,6 +352,107 @@
                 if (bar) bar.style.width = row.getAttribute('data-bar-w') + '%';
             });
         }, 80);
+    }
+
+    /* ============================================
+       EXPANDED CARD OVERLAY
+       Click a stat card → enlarged popup
+       Mouseleave → dismisses it
+       ============================================ */
+    var _expandHideTimer = null;
+    var _expandedCard = null;
+
+    function initExpandedCards() {
+        var scene = document.getElementById('scene');
+        if (!scene) return;
+
+        /* Open on hover — only re-render if it's a different card */
+        scene.addEventListener('mouseover', function (e) {
+            var card = e.target.closest('.stat-card');
+            if (card) {
+                clearTimeout(_expandHideTimer);
+                if (card !== _expandedCard) {
+                    _expandedCard = card;
+                    showExpandedCard(card);
+                }
+            }
+        });
+
+        /* Start hide timer when leaving a card */
+        scene.addEventListener('mouseout', function (e) {
+            var card = e.target.closest('.stat-card');
+            if (card) {
+                /* Only start timer if we're not moving into the overlay */
+                var related = e.relatedTarget;
+                var overlay = document.getElementById('expanded-card-overlay');
+                if (overlay && related && (overlay === related || overlay.contains(related))) return;
+                _expandHideTimer = setTimeout(hideExpandedCard, 120);
+            }
+        });
+
+        /* Cancel hide when entering overlay; hide when leaving it */
+        var overlay = document.getElementById('expanded-card-overlay');
+        if (overlay) {
+            overlay.addEventListener('mouseenter', function () {
+                clearTimeout(_expandHideTimer);
+            });
+            overlay.addEventListener('mouseleave', hideExpandedCard);
+        }
+    }
+
+    function showExpandedCard(cardEl) {
+        var overlay = document.getElementById('expanded-card-overlay');
+        if (!overlay) return;
+
+        /* Copy the card's inner HTML into the larger overlay */
+        overlay.innerHTML = '<div class="expanded-close-hint">Move cursor away to close</div>' + cardEl.innerHTML;
+
+        /* Reset all animated elements to 0 so they can re-animate */
+        overlay.querySelectorAll('.hist-bar').forEach(function (bar) {
+            bar.style.transition = 'none';
+            bar.style.height = '0';
+        });
+        overlay.querySelectorAll('.col-bar').forEach(function (bar) {
+            bar.style.transition = 'none';
+            bar.style.height = '0';
+        });
+        overlay.querySelectorAll('.fav-fill').forEach(function (fill) {
+            fill.style.transition = 'none';
+            fill.style.width = '0';
+        });
+
+        /* Make visible */
+        overlay.style.display = 'block';
+        void overlay.offsetWidth;              /* force reflow */
+        overlay.classList.add('visible');
+
+        /* Re-trigger bar grow animations */
+        setTimeout(function () {
+            overlay.querySelectorAll('.hist-bar').forEach(function (bar) {
+                bar.style.transition = 'height 0.75s cubic-bezier(0.25, 0.46, 0.45, 0.94)';
+                bar.style.height = bar.getAttribute('data-h');
+            });
+            overlay.querySelectorAll('.col-bar').forEach(function (bar) {
+                bar.style.transition = 'height 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94)';
+                bar.style.height = bar.getAttribute('data-h');
+            });
+            overlay.querySelectorAll('.fav-fill').forEach(function (fill) {
+                fill.style.transition = 'width 0.9s cubic-bezier(0.25, 0.46, 0.45, 0.94)';
+                fill.style.width = fill.getAttribute('data-w');
+            });
+        }, 40);
+    }
+
+    function hideExpandedCard() {
+        var overlay = document.getElementById('expanded-card-overlay');
+        if (!overlay) return;
+        _expandedCard = null;
+        overlay.classList.remove('visible');
+        setTimeout(function () {
+            if (!overlay.classList.contains('visible')) {
+                overlay.style.display = 'none';
+            }
+        }, 250);
     }
 
     /* ── Screen hint — dismiss on first interaction ── */
