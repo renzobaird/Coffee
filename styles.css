@@ -33,13 +33,16 @@
        ═══════════════════════════════════════════ */
     --screen-left:   1130px;
     --screen-top:    82px;
-    --screen-w:      255px;
+    /* increase machine screen width by 20% so buttons are wider (was 15%) */
+    --screen-w:      calc(255px * 1.2); /* ≈ 306px */
     --screen-h:      370px;
 
     --drip-left:     1265px;
-    --drip-top:      520px;
+    /* lower the drip origin 5% to bring the espresso streams closer to the cup */
+    --drip-top:      calc(520px * 1.05); /* ≈ 546px */
     --drip-w:        50px;
-    --drip-h:        125px;
+    /* extended so drops reach the cup rim (cup-top 700px - drip-top 546px = 154px gap, zone ≈ 160px covers it) */
+    --drip-h:        160px;
 
     --cup-left:      1215px;
     --cup-top:       700px;
@@ -628,20 +631,23 @@ html, body {
     display: flex;
     flex-direction: column;
     flex: 1;
-    gap: 5px;
+    /* remove space between buttons */
+    gap: 0;
     padding: 10px 8px 8px 14px;
     justify-content: center;
 }
 
 .screen-btn {
-    background: #000000;
-    border: 2px solid #000000;
+    /* match machine background: use the same dark brown instead of pure black */
+    background: #1A1110;
+    border: 2px solid #1A1110;
     color: #ffffff;
     font-family: var(--font-display);
     font-size: 16px;
     font-weight: 700;
     letter-spacing: 0.5px;
-    padding: 12px 18px;
+    /* increase vertical size by another 10% (from 16.5px → 18.15px) */
+    padding: 18.15px 18px;
     border-radius: 10px;
     cursor: pointer;
     transition: background 0.2s ease, color 0.2s ease, border-color 0.2s ease;
@@ -651,8 +657,14 @@ html, body {
     align-items: center;
 }
 
+/* avoid double-thick borders between stacked buttons when gap is 0 */
+.screen-btn + .screen-btn {
+    border-top: none;
+}
+
 .screen-btn:hover {
-    background: #222222;
+    /* slight lightening on hover while keeping warm brown tone */
+    background: #2b1f1e;
 }
 
 .screen-btn.active {
@@ -674,7 +686,8 @@ html, body {
     width: var(--drip-w);
     height: var(--drip-h);
     pointer-events: none;
-    z-index: 6;
+    /* must be BEHIND the glass (glass-container is z-index 5) */
+    z-index: 4;
     opacity: 0;
     transition: opacity 0.3s ease;
 }
@@ -721,24 +734,24 @@ html, body {
 .drip-l1, .drip-l2 { left: 13px; }
 .drip-r1, .drip-r2 { left: 25px; }
 
-/* Main drop fall */
+/* Main drop fall — end positions scaled to reach cup rim (≈155px inside drip zone) */
 @keyframes dripFall {
     0%   { top: 0px;   opacity: 0;    transform: scaleX(1)   scaleY(0.7); }
-    8%   { top: 4px;   opacity: 1;    transform: scaleX(0.85) scaleY(1.3); }
-    40%  { top: 50px;  opacity: 0.92; transform: scaleX(0.78) scaleY(1.55); }
-    75%  { top: 100px; opacity: 0.75; transform: scaleX(0.72) scaleY(1.7); }
-    95%  { top: 120px; opacity: 0.2;  transform: scaleX(1.1)  scaleY(0.5); }
-    100% { top: 122px; opacity: 0;    transform: scaleX(1.3)  scaleY(0.3); }
+    8%   { top: 5px;   opacity: 1;    transform: scaleX(0.85) scaleY(1.3); }
+    40%  { top: 63px;  opacity: 0.92; transform: scaleX(0.78) scaleY(1.55); }
+    75%  { top: 127px; opacity: 0.75; transform: scaleX(0.72) scaleY(1.7); }
+    95%  { top: 153px; opacity: 0.2;  transform: scaleX(1.1)  scaleY(0.5); }
+    100% { top: 155px; opacity: 0;    transform: scaleX(1.3)  scaleY(0.3); }
 }
 
 /* Secondary (delayed) drop falls slightly slower */
 @keyframes dripFallSlow {
     0%   { top: 0px;   opacity: 0;    transform: scaleX(1)    scaleY(0.7); }
-    8%   { top: 3px;   opacity: 1;    transform: scaleX(0.88)  scaleY(1.25); }
-    40%  { top: 48px;  opacity: 0.88; transform: scaleX(0.8)   scaleY(1.5); }
-    75%  { top: 98px;  opacity: 0.7;  transform: scaleX(0.74)  scaleY(1.65); }
-    95%  { top: 119px; opacity: 0.18; transform: scaleX(1.08)  scaleY(0.5); }
-    100% { top: 122px; opacity: 0;    transform: scaleX(1.25)  scaleY(0.3); }
+    8%   { top: 4px;   opacity: 1;    transform: scaleX(0.88)  scaleY(1.25); }
+    40%  { top: 61px;  opacity: 0.88; transform: scaleX(0.8)   scaleY(1.5); }
+    75%  { top: 125px; opacity: 0.7;  transform: scaleX(0.74)  scaleY(1.65); }
+    95%  { top: 151px; opacity: 0.18; transform: scaleX(1.08)  scaleY(0.5); }
+    100% { top: 155px; opacity: 0;    transform: scaleX(1.25)  scaleY(0.3); }
 }
 
 .drip-drop.dripping.drip-l1 { animation: dripFall     1.9s cubic-bezier(0.45, 0.05, 0.55, 0.95) infinite; }
@@ -852,8 +865,10 @@ html, body {
 
 .sales-kpi {
     position: absolute;
-    left: 1440px;
-    top: 710px;
+    /* move right 5% from previous left */
+    left: calc(1440px * 1.05); /* ≈ 1512px */
+    /* move up 5% relative to the current lowered position (1.1 * 0.95 = 1.045) */
+    top: calc(710px * 1.1 * 0.95); /* ≈ 742px */
     width: 200px;
     display: flex;
     flex-direction: column;

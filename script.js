@@ -6,6 +6,42 @@
 (function () {
     'use strict';
 
+    /* ── Audio ──────────────────────────────────────────────────
+       audio/music.mp3 : background loop, starts on page load
+       audio/sfx.wav   : SFX clip (~25 s); plays immediately on
+                         drink selection. Drip fires 18 s in and
+                         lasts 7 s (matching the end of the clip).
+    ── ─────────────────────────────────────────────────────── */
+    var _audio = {
+        music: new Audio('audio/music.mp3'),
+        sfx:   new Audio('audio/sfx.wav')
+    };
+    _audio.music.loop   = true;
+    _audio.music.volume = 0;     // silent until fade-in completes
+    _audio.sfx.volume   = 0.85;
+
+    /* holds the 18-second countdown before the drip starts */
+    var _sfxDelayTimer = null;
+
+    /* ── Music fade-in helper (used once on load) ── */
+    function _musicFadeIn(targetVol, durationMs) {
+        _audio.music.volume = 0;
+        var STEPS    = 80;
+        var stepTime = durationMs / STEPS;
+        var stepVol  = targetVol / STEPS;
+        var i = 0;
+        var iv = setInterval(function () {
+            i++;
+            _audio.music.volume = Math.min(targetVol, parseFloat((stepVol * i).toFixed(4)));
+            if (i >= STEPS) clearInterval(iv);
+        }, stepTime);
+    }
+
+    /* ── Stop SFX immediately ── */
+    function _stopSFX() {
+        try { _audio.sfx.pause(); _audio.sfx.currentTime = 0; } catch(e) {}
+    }
+
     /* ── State ── */
     let currentPanel = 'home';
     let isTransitioning = false;
@@ -94,6 +130,23 @@
         initScreenHint();
         populateAllDrinks();
         initExpandedCards();
+
+        /* ── Background music: start on page load, fade in over 4 s ──
+           Browsers require a user gesture for autoplay.
+           We try immediately and fall back to the first interaction. */
+        var _musicStarted = false;
+        function _startMusic() {
+            if (_musicStarted) return;
+            _musicStarted = true;
+            _audio.music.play().then(function () {
+                _musicFadeIn(0.18, 4000);
+            }).catch(function () { /* still blocked — give up quietly */ });
+        }
+        /* Attempt instant autoplay */
+        _startMusic();
+        /* Fallback: first click/touch on the page */
+        document.addEventListener('click',      _startMusic, { once: true });
+        document.addEventListener('touchstart', _startMusic, { once: true });
     });
 
     /* ============================================
@@ -173,11 +226,25 @@
             currentPanel = target;
 
             if (target !== 'home') {
-                startPourAnimation(target);
                 renderDrinkCharts(target);
                 showSalesKPI(target);
+
+                /* ── SFX plays immediately at full volume over the music ── */
+                _stopSFX();
+                _audio.sfx.currentTime = 0;
+                _audio.sfx.volume = 0.85;
+                try { _audio.sfx.play().catch(function(){}); } catch(e) {}
+
+                /* ── 18 s after click → start the 7-second drip animation ── */
+                _sfxDelayTimer = setTimeout(function () {
+                    _sfxDelayTimer = null;
+                    startPourAnimation(target);
+                }, 18000);
+
             } else {
                 hideSalesKPI();
+                /* returning home: stop SFX, music keeps going */
+                _stopSFX();
             }
 
             setTimeout(function () { isTransitioning = false; }, 500);
@@ -528,6 +595,12 @@
 
         stopDripDrops();
 
+        /* cancel the 18-second pre-drip countdown if still pending */
+        if (_sfxDelayTimer) { clearTimeout(_sfxDelayTimer); _sfxDelayTimer = null; }
+
+        /* stop SFX immediately (music keeps playing unaffected) */
+        _stopSFX();
+
         var dripGroup = document.getElementById('drip-group');
         if (dripGroup) dripGroup.style.opacity = '0';
     }
@@ -561,12 +634,13 @@
             if (streamL) {
                 streamL.style.transition = 'height 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94), opacity 0.4s ease';
                 streamL.style.opacity = '0.9';
-                streamL.style.height  = '118px';
+                /* extended to reach cup rim (154px gap between drip-top and cup-top) */
+                streamL.style.height  = '154px';
             }
             if (streamR) {
                 streamR.style.transition = 'height 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94), opacity 0.4s ease';
                 streamR.style.opacity = '0.85';
-                streamR.style.height  = '118px';
+                streamR.style.height  = '154px';
             }
         }, 100));
 
@@ -575,8 +649,10 @@
             startDripDrops();
         }, 300));
 
-        /* Phase 3 (700ms): Begin filling the glass */
-        var fillDuration = 2200;
+        /* Phase 3 (700ms): Begin filling the glass — total drip = 7 s
+           700 (phase3 start) + fillDuration + 200 (phase4 buffer) = 7000
+           → fillDuration = 6100 ms */
+        var fillDuration = 6100;
         animTimers.push(setTimeout(function () {
             if (liquidFill) {
                 liquidFill.style.transition = 'height ' + fillDuration + 'ms cubic-bezier(0.22, 0.61, 0.36, 1)';
@@ -599,6 +675,9 @@
             }
 
             stopDripDrops();
+
+            /* SFX clip naturally ends with the drip; stop it in case it's still going */
+            _stopSFX();
 
             /* Show crema */
             if (liquidSurface) {
