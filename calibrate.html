@@ -170,6 +170,54 @@
         <b>Step 3:</b> Copy the CSS values shown in the panel. &nbsp;
         <span class="key">R</span> to reset.
     </div>
+    <!-- Background music: attempt muted autoplay, then unmute & fade-in on first interaction -->
+    <audio id="bgMusic" src="audio/music.mp3" loop preload="auto" crossorigin="anonymous"></audio>
+
+    <script>
+    (function(){
+        function fadeIn(audioEl, targetVol, durationMs){
+            audioEl.volume = 0;
+            var STEPS = 80;
+            var stepTime = durationMs / STEPS;
+            var stepVol = targetVol / STEPS;
+            var i = 0;
+            var iv = setInterval(function(){
+                i++;
+                audioEl.volume = Math.min(targetVol, parseFloat((stepVol * i).toFixed(4)));
+                if(i >= STEPS) clearInterval(iv);
+            }, stepTime);
+        }
+
+        var bg = document.getElementById('bgMusic');
+        bg.volume = 0;
+
+        function tryStartMuted() {
+            // Start muted playback (muted autoplay is allowed in most browsers)
+            bg.muted = true;
+            bg.play().then(function(){
+                // Muted playback succeeded. Unmute on the first user gesture and fade in.
+                function enableSoundOnce(){
+                    bg.muted = false;
+                    fadeIn(bg, 0.18, 4000);
+                }
+                document.addEventListener('click', enableSoundOnce, { once: true });
+                document.addEventListener('touchstart', enableSoundOnce, { once: true });
+            }).catch(function(){
+                // Muted autoplay failed (rare). Fallback to starting on first user gesture.
+                function startOnInteraction(){
+                    bg.muted = false;
+                    bg.play().then(function(){ fadeIn(bg, 0.18, 4000); }).catch(function(){});
+                }
+                document.addEventListener('click', startOnInteraction, { once: true });
+                document.addEventListener('touchstart', startOnInteraction, { once: true });
+            });
+        }
+
+        // Attempt immediately
+        tryStartMuted();
+    })();
+    </script>
+
     <script>
         var img = document.getElementById('img');
         var container = document.getElementById('container');

@@ -29,6 +29,12 @@
                     </div>
                 </div>
 
+                <!-- Central drink header + description (appears below logo, above the charts) -->
+                <div class="drink-header home-headline" id="drink-header" style="display:none;">
+                    <h1 class="headline-main" id="drinkHeaderTitle"></h1>
+                    <p class="home-tagline" id="drinkHeaderDesc"></p>
+                </div>
+
                 <div class="content-panels">
 
                     <!-- HOME -->
@@ -42,7 +48,6 @@
 
                     <!-- LATTE -->
                     <div id="panel-latte" class="content-panel drink-panel">
-                        <h2 class="drink-name">Latte</h2>
                         <div class="drink-stats-grid">
                             <div class="stat-card" id="latte-chart-age"></div>
                             <div class="stat-card" id="latte-chart-time"></div>
@@ -52,7 +57,6 @@
 
                     <!-- CAPPUCCINO -->
                     <div id="panel-cappuccino" class="content-panel drink-panel">
-                        <h2 class="drink-name">Cappuccino</h2>
                         <div class="drink-stats-grid">
                             <div class="stat-card" id="cappuccino-chart-age"></div>
                             <div class="stat-card" id="cappuccino-chart-time"></div>
@@ -62,7 +66,6 @@
 
                     <!-- AMERICANO -->
                     <div id="panel-americano" class="content-panel drink-panel">
-                        <h2 class="drink-name">Americano</h2>
                         <div class="drink-stats-grid">
                             <div class="stat-card" id="americano-chart-age"></div>
                             <div class="stat-card" id="americano-chart-time"></div>
@@ -72,7 +75,6 @@
 
                     <!-- CORTADO -->
                     <div id="panel-cortado" class="content-panel drink-panel">
-                        <h2 class="drink-name">Cortado</h2>
                         <div class="drink-stats-grid">
                             <div class="stat-card" id="cortado-chart-age"></div>
                             <div class="stat-card" id="cortado-chart-time"></div>
@@ -82,7 +84,6 @@
 
                     <!-- ESPRESSO -->
                     <div id="panel-espresso" class="content-panel drink-panel">
-                        <h2 class="drink-name">Espresso</h2>
                         <div class="drink-stats-grid">
                             <div class="stat-card" id="espresso-chart-age"></div>
                             <div class="stat-card" id="espresso-chart-time"></div>
@@ -144,6 +145,58 @@
 
         </div><!-- /scene -->
     </div><!-- /viewport -->
+
+    <!-- Mute toggle button — bottom-right corner -->
+    <button class="mute-btn" id="muteBtn" title="Toggle sound" aria-label="Toggle sound">
+        <!-- Sound on -->
+        <svg class="icon-sound" viewBox="0 0 24 24"><path d="M11 5L6 9H2v6h4l5 4V5z"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/></svg>
+        <!-- Sound off / muted -->
+        <svg class="icon-muted" viewBox="0 0 24 24"><path d="M11 5L6 9H2v6h4l5 4V5z"/><line x1="23" y1="9" x2="17" y2="15"/><line x1="17" y1="9" x2="23" y2="15"/></svg>
+    </button>
+
+    <!-- Background music element: attempt muted autoplay on launch -->
+    <audio id="bgMusic" src="audio/music.mp3" loop preload="auto" crossorigin="anonymous"></audio>
+    <script>
+    (function(){
+        function fadeIn(audioEl, targetVol, durationMs){
+            audioEl.volume = 0;
+            var STEPS = 80;
+            var stepTime = durationMs / STEPS;
+            var stepVol = targetVol / STEPS;
+            var i = 0;
+            var iv = setInterval(function(){
+                i++;
+                audioEl.volume = Math.min(targetVol, parseFloat((stepVol * i).toFixed(4)));
+                if(i >= STEPS) clearInterval(iv);
+            }, stepTime);
+        }
+
+        var bg = document.getElementById('bgMusic');
+        if (!bg) return;
+        bg.volume = 0;
+
+        function tryStartMuted() {
+            bg.muted = true;
+            bg.play().then(function(){
+                function enableSoundOnce(){
+                    bg.muted = false;
+                    fadeIn(bg, 0.18, 4000);
+                }
+                document.addEventListener('click', enableSoundOnce, { once: true });
+                document.addEventListener('touchstart', enableSoundOnce, { once: true });
+            }).catch(function(){
+                function startOnInteraction(){
+                    bg.muted = false;
+                    bg.play().then(function(){ fadeIn(bg, 0.18, 4000); }).catch(function(){});
+                }
+                document.addEventListener('click', startOnInteraction, { once: true });
+                document.addEventListener('touchstart', startOnInteraction, { once: true });
+            });
+        }
+
+        tryStartMuted();
+    })();
+    </script>
 
     <script src="script.js"></script>
 </body>

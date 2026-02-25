@@ -104,9 +104,9 @@ html, body {
 
 .left-column {
     position: absolute;
-    left: 20px;
-    top: 50px;
-    width: 960px;
+    left: 100px;
+    top: 120px;
+    width: 920px;
     height: 980px;
     display: flex;
     flex-direction: column;
@@ -116,7 +116,8 @@ html, body {
 /* ── Logo ── */
 .logo-area {
     flex-shrink: 0;
-    margin-bottom: 24px;
+    margin-top: -80px;
+    margin-bottom: 40px;
 }
 
 .logo {
@@ -125,7 +126,7 @@ html, body {
 }
 
 .logo-img {
-    height: 280px;
+    height: 200px;
     width: auto;
     max-width: 720px;
     object-fit: contain;
@@ -175,6 +176,81 @@ html, body {
     display: flex;
     flex-direction: column;
 }
+
+/* ── Drink header (between logo and charts) ── */
+.drink-header {
+    margin: 0 0 0;
+    opacity: 0;
+    transform: translateY(14px);
+    transition: opacity 0.6s ease, transform 0.6s ease;
+}
+.drink-header.visible {
+    opacity: 1;
+    transform: translateY(0);
+}
+.drink-header .headline-main {
+    font-size: 72px;
+    margin-top: 4px;
+}
+.drink-header .home-tagline {
+    font-size: 20px;
+    line-height: 1.65;
+    max-width: 720px;
+    margin-top: 10px;
+}
+
+/* charts sit directly below the header */
+.drink-header + .content-panels {
+    margin-top: 0;
+}
+
+/* Lift the home headline (only on the home panel) */
+#panel-home {
+    justify-content: flex-start !important;
+    padding-top: 10px;
+}
+#panel-home .home-headline {
+    margin-top: 0;
+}
+
+/* ── Mute toggle button (fixed bottom-right of viewport) ── */
+.mute-btn {
+    position: fixed;
+    bottom: 22px;
+    right: 22px;
+    z-index: 999;
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    border: 2px solid rgba(255,255,255,0.18);
+    background: rgba(26, 17, 16, 0.82);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.2s ease, transform 0.15s ease, border-color 0.2s ease;
+    padding: 0;
+    outline: none;
+}
+.mute-btn:hover {
+    background: rgba(26, 17, 16, 0.96);
+    border-color: rgba(184, 149, 106, 0.6);
+    transform: scale(1.08);
+}
+.mute-btn svg {
+    width: 22px;
+    height: 22px;
+    fill: none;
+    stroke: #fff;
+    stroke-width: 1.8;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+.mute-btn.muted svg.icon-sound { display: none; }
+.mute-btn.muted svg.icon-muted { display: block; }
+.mute-btn svg.icon-muted       { display: none; }
 
 .headline-accent {
     font-family: var(--font-body);
@@ -253,8 +329,22 @@ html, body {
    DRINK PANEL
    ============================================ */
 
+/* Drink panels align to top so charts sit right below the header text */
 .drink-panel {
-    gap: 32px;
+    justify-content: flex-start !important;
+    padding-top: 24px;
+    gap: 18px;
+}
+
+/* Charts start hidden — revealed when drip begins */
+.drink-stats-grid {
+    opacity: 0;
+    transform: translateY(16px);
+    transition: opacity 0.7s ease, transform 0.7s ease;
+}
+.drink-stats-grid.revealed {
+    opacity: 1;
+    transform: translateY(0);
 }
 
 .drink-name {
@@ -607,7 +697,8 @@ html, body {
     justify-content: center;
     z-index: 2;
     cursor: pointer;
-    background: #000000;
+    /* match machine button background for consistent look */
+    background: #1A1110;
     transition: opacity 0.5s ease;
 }
 

@@ -12,13 +12,20 @@
                          drink selection. Drip fires 18 s in and
                          lasts 7 s (matching the end of the clip).
     ── ─────────────────────────────────────────────────────── */
-    var _audio = {
-        music: new Audio('audio/music.mp3'),
-        sfx:   new Audio('audio/sfx.wav')
-    };
-    _audio.music.loop   = true;
-    _audio.music.volume = 0;     // silent until fade-in completes
-    _audio.sfx.volume   = 0.85;
+    var _audio = { music: null, sfx: null };
+    // Reuse an existing <audio id="bgMusic"> element if present (added to HTML for autoplay handling),
+    // otherwise create a programmatic Audio instance.
+    var existingBg = (typeof document !== 'undefined') ? document.getElementById('bgMusic') : null;
+    if (existingBg) {
+        _audio.music = existingBg;
+    } else {
+        _audio.music = new Audio('audio/music.mp3');
+    }
+    _audio.sfx = new Audio('audio/sfx.wav');
+    try { _audio.music.loop = true; } catch(e) {}
+    try { _audio.music.volume = 0; } catch(e) {}
+    // reduce default SFX level by 20% (was 0.85 → now 0.68)
+    _audio.sfx.volume = 0.68;
 
     /* holds the 18-second countdown before the drip starts */
     var _sfxDelayTimer = null;
@@ -116,6 +123,38 @@
         }
     };
 
+    /* ── Descriptions displayed in the single header area beneath the logo ── */
+    const drinkDescriptions = {
+        cortado: 'A cortado is all about balance, consisting of equal parts espresso and warm, silky steamed milk. Unlike larger milk drinks, the 1:1 ratio is designed to take the edge off the espresso’s acidity without masking its complex flavors, making it the perfect "bridge" for those who find a straight shot too intense.',
+        latte: 'The latte is the mildest and creamiest option, featuring a single or double shot of espresso topped with a generous amount of steamed milk and a thin layer of micro-foam. It has a much higher milk-to-coffee ratio than a cappuccino, resulting in a smooth, mellow drink that is often the canvas for creative latte art.',
+        americano: 'If you want the depth of espresso but the longevity of a standard drip coffee, the Americano is the way to go. It is made by pouring hot water over a shot of espresso, which dilutes the intensity while preserving the unique flavor profile and body of the espresso bean.',
+        cappuccino: 'The hallmark of a great cappuccino is its distinct layers: equal parts espresso, steamed milk, and a thick, airy head of milk foam. It feels much lighter and "fluffier" than a latte, offering a bold coffee taste that hits you through a cloud of velvety froth.',
+        espresso: 'A classic espresso — a concentrated, full-bodied shot brewed under pressure. Intense and aromatic, it serves as the foundation for many milk-based drinks and is enjoyed by those who appreciate pure coffee flavor.'
+    };
+
+    function updateDrinkHeader(drink) {
+        var hdr = document.getElementById('drink-header');
+        var titleEl = document.getElementById('drinkHeaderTitle');
+        var descEl  = document.getElementById('drinkHeaderDesc');
+        if (!hdr || !titleEl || !descEl) return;
+        if (!drink || drink === 'home') {
+            hdr.classList.remove('visible');
+            setTimeout(function () {
+                hdr.style.display = 'none';
+                titleEl.textContent = '';
+                descEl.textContent = '';
+            }, 600);   // wait for fade-out transition
+            return;
+        }
+        var label = drink.charAt(0).toUpperCase() + drink.slice(1);
+        titleEl.textContent = label;
+        descEl.textContent  = drinkDescriptions[drink] || '';
+        hdr.style.display = '';
+        // trigger reflow so the transition fires
+        void hdr.offsetWidth;
+        hdr.classList.add('visible');
+    }
+
     /* ── Glass body height in CSS px (must match .glass-body height) ── */
     const GLASS_BODY_HEIGHT = 200;
 
@@ -131,22 +170,8 @@
         populateAllDrinks();
         initExpandedCards();
 
-        /* ── Background music: start on page load, fade in over 4 s ──
-           Browsers require a user gesture for autoplay.
-           We try immediately and fall back to the first interaction. */
-        var _musicStarted = false;
-        function _startMusic() {
-            if (_musicStarted) return;
-            _musicStarted = true;
-            _audio.music.play().then(function () {
-                _musicFadeIn(0.18, 4000);
-            }).catch(function () { /* still blocked — give up quietly */ });
-        }
-        /* Attempt instant autoplay */
-        _startMusic();
-        /* Fallback: first click/touch on the page */
-        document.addEventListener('click',      _startMusic, { once: true });
-        document.addEventListener('touchstart', _startMusic, { once: true });
+        /* ── Background music is handled by the inline <script> in index.html
+           (muted autoplay + unmute on first gesture). No duplicate start needed here. ── */
     });
 
     /* ============================================
@@ -225,26 +250,44 @@
             updateNavHighlight(target);
             currentPanel = target;
 
+            // Update the single top header / description block
+            updateDrinkHeader(target);
+
             if (target !== 'home') {
-                renderDrinkCharts(target);
-                showSalesKPI(target);
+                /* Charts start hidden — will reveal when drip begins */
+                var statsGrid = newPanel.querySelector('.drink-stats-grid');
+                if (statsGrid) statsGrid.classList.remove('revealed');
 
                 /* ── SFX plays immediately at full volume over the music ── */
                 _stopSFX();
                 _audio.sfx.currentTime = 0;
-                _audio.sfx.volume = 0.85;
+                _audio.sfx.volume = 0.68;
                 try { _audio.sfx.play().catch(function(){}); } catch(e) {}
 
                 /* ── 18 s after click → start the 7-second drip animation ── */
+                /* At the same moment, reveal charts + sales KPI */
                 _sfxDelayTimer = setTimeout(function () {
                     _sfxDelayTimer = null;
+
+                    /* Render and reveal charts */
+                    renderDrinkCharts(target);
+                    if (statsGrid) {
+                        void statsGrid.offsetWidth;
+                        statsGrid.classList.add('revealed');
+                    }
+                    showSalesKPI(target);
+
+                    /* Start the drip */
                     startPourAnimation(target);
                 }, 18000);
 
             } else {
                 hideSalesKPI();
-                /* returning home: stop SFX, music keeps going */
+                /* returning home: stop SFX, hide charts, music keeps going */
                 _stopSFX();
+                document.querySelectorAll('.drink-stats-grid').forEach(function (g) {
+                    g.classList.remove('revealed');
+                });
             }
 
             setTimeout(function () { isTransitioning = false; }, 500);
@@ -693,6 +736,24 @@
             d.classList.add('dripping');
         });
     }
+
+    /* ── Mute toggle (bottom-right button) ── */
+    (function initMuteButton() {
+        var btn = document.getElementById('muteBtn');
+        if (!btn) return;
+        var _muted = false;
+        btn.addEventListener('click', function (e) {
+            // Stop click from bubbling to document-level autoplay handlers
+            e.stopPropagation();
+            _muted = !_muted;
+            // Mute/unmute both audio channels
+            try { _audio.music.muted = _muted; } catch(ex) {}
+            try { _audio.sfx.muted   = _muted; } catch(ex) {}
+            btn.classList.toggle('muted', _muted);
+            btn.setAttribute('title', _muted ? 'Unmute sound' : 'Mute sound');
+            btn.setAttribute('aria-label', _muted ? 'Unmute sound' : 'Mute sound');
+        });
+    })();
 
     function stopDripDrops() {
         document.querySelectorAll('.drip-drop').forEach(function (d) {
